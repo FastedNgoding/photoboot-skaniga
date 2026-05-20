@@ -2,6 +2,23 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import QRCode from "qrcode";
 import { ArrowInDownSquareHalf, Copy, Fullscreen, Home } from "@boxicons/react";
 
+import astronotImg1 from "../assets/astronot1.png";
+import astronotImg2 from "../assets/astronot2.png";
+import planetImg from "../assets/planet.png";
+
+import hkImg1 from "../assets/hk1.png";
+import hkImg2 from "../assets/hk2.png";
+import hkImg3 from "../assets/hk3.png";
+
+import swImg1 from "../assets/sw1.png";
+import swImg2 from "../assets/sw2.png";
+import swImg3 from "../assets/sw3.png";
+
+import lImg1 from "../assets/l1.png";
+import lImg2 from "../assets/l2.png";
+import lImg3 from "../assets/l3.png";
+
+
 const IMGBB_API_KEY = "ab03a93ae55127be2fc02960dfde7834";
 const CLOUDINARY_CLOUD = "dlb2wugmt";
 const CLOUDINARY_PRESET = "photobooth_skaniga";
@@ -16,6 +33,15 @@ const H = PAD + (PH + GAP) * 3 - GAP + PAD + FH;
 function extractColors(gradStr) {
   const m = gradStr.match(/#[a-fA-F0-9]{6}/g) || ["#333333", "#666666"];
   return [m[0], m[m.length - 1]];
+}
+
+function loadStaticImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
 }
 
 function drawStar(c, cx, cy, sp, or, ir, col) {
@@ -52,6 +78,7 @@ function drawPlanet(c, x, y, r, col, rc) {
   c.ellipse(x, y, r * 1.8, r * 0.4, Math.PI / 6, 0, Math.PI * 2);
   c.stroke();
 }
+
 
 function drawBow(c, x, y, s, col) {
   c.fillStyle = col;
@@ -322,7 +349,8 @@ function buildStrip(photos, template) {
         img.src = src;
       });
     Promise.all(photos.map((p) => loadImg(p)))
-      .then((imgs) => {
+      // .then((imgs) => {
+      .then(async (imgs) => {
         const pw = W - PAD * 2;
 
         imgs.forEach((img, i) => {
@@ -342,7 +370,7 @@ function buildStrip(photos, template) {
           // Hitung scale agar foto MEMENUHI slot (cover, tidak contain)
           const sx = pw / img.width;
           const sy = PH / img.height;
-          const s = Math.max(sx, sy); // pakai max, bukan min!
+          const s = Math.max(sx, sy);
 
           const dw = img.width * s;
           const dh = img.height * s;
@@ -370,6 +398,41 @@ function buildStrip(photos, template) {
           c.fillText(`${i + 1}/${imgs.length}`, x + pw - 8, y + PH - 8);
           c.textAlign = "left";
         });
+
+        // Tambahan decoration stiker
+        if (template.id === "astronaut") {
+          const imageAstrounot1 = await loadStaticImage(astronotImg1);
+          const imageAstrounot2 = await loadStaticImage(astronotImg2);
+          const imagePlanet = await loadStaticImage(planetImg);
+          c.drawImage(imageAstrounot1, -20, 5, 140, 140);
+          c.drawImage(imageAstrounot2, PAD * 13, 36 * 20 / 2 - 30, 140, 140);
+          c.drawImage(imagePlanet, 8, 36 * 20 - 20, 130, 80);
+        }
+        if (template.id === "hellokitty") {
+          const imageHK1 = await loadStaticImage(hkImg1);
+          const imageHK2 = await loadStaticImage(hkImg2);
+          const imageHK3 = await loadStaticImage(hkImg3);
+          c.drawImage(imageHK1, 13, 8, 140, 140);
+          c.drawImage(imageHK2, PAD * 13, 36 * 20 / 2 - 30, 140, 140);
+          c.drawImage(imageHK3, 15, 36 * 20 - 20, 120, 100);
+        }
+        if (template.id === "starwars") {
+          const imageSW1 = await loadStaticImage(swImg1);
+          const imageSW2 = await loadStaticImage(swImg2);
+          const imageSW3 = await loadStaticImage(swImg3);
+          c.drawImage(imageSW1, 17, 25, 160, 80);
+          c.drawImage(imageSW2, PAD * 13, 36 * 20 / 2 - 30, 140, 140);
+          c.drawImage(imageSW3, 15, 36 * 20 - 50, 120, 135);
+        }
+        if (template.id === "lotso") {
+          const imageL1 = await loadStaticImage(lImg1);
+          const imageL2 = await loadStaticImage(lImg2);
+          const imageL3 = await loadStaticImage(lImg3);
+          c.drawImage(imageL1, 5, -5, 130, 130);
+          c.drawImage(imageL2, PAD * 13, 36 * 21 / 2, 100, 100);
+          c.drawImage(imageL3, 5, 36 * 20 - 40, 120, 135);
+        }
+
         const fy = H - FH + 24;
         const bf = template.font.includes("Bebas")
           ? '"Bebas Neue", sans-serif'

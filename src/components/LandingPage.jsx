@@ -40,7 +40,7 @@ export default function LandingPage({ onStart }) {
       />
 
       <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-        <div className="mb-2 overflow-hidden">
+        <div className="mb-2 overflow-hidden font-[Quicksand]">
           {phase !== 'intro' && (
             <div className="flex justify-center gap-1 flex-wrap">
               {TITLE_CHARS.map((c, i) => (

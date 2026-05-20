@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-const musikFiles = import.meta.glob('../musik/*.(mp3,wav,ogg,aac,m4a,flac)', { eager: true, query: '?url', import: 'default' })
+const musikFiles = import.meta.glob('../musik/*.(mp3|wav|ogg|aac|m4a|flac)', { eager: true, query: '?url', import: 'default' })
 
 const trackList = Object.values(musikFiles)
 

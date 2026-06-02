@@ -89,23 +89,23 @@ export default function LandingPage({ onStart }) {
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <br />
-              <br />
-              <br />
-              <br />
+            <br />
+            <br />
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
               <button
                 onClick={onStart}
-                className="btn-primary rounded-full px-10 py-5 text-xl font-body font-bold animate-pulse-glow group relative flex w-50 h-13 justify-center items-center"
+                className="btn-primary rounded-full px-10 py-5 text-xl font-body font-bold animate-pulse-glow group relative flex w-44 sm:w-50 h-12 sm:h-13 gap-x-2 justify-center items-center"
               >
                 <span className="mr-2"><Camera /></span>
                 Foto Sekarang
-                {/* <span className="ml-2 group-hover:translate-x-1 transition-transform inline-block">→</span> */}
               </button>
             </div>
 
             <br />
             <br />
+            <br />
+
             <div className="flex gap-8 justify-center pt-4">
               {['🎀', '🚀', '🧸', '⚔️'].map((emoji, i) => (
                 <span

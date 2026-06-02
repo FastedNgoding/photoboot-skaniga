@@ -8,28 +8,53 @@ const THEME_ICONS = {
   starwars: Bolt,
 }
 
-function getThemeIcon(id) {
-  return THEME_ICONS[id] || Star
+function ThemeIcon({ id, size = "20", color }) {
+  const Icon = THEME_ICONS[id] || Star
+  return <Icon size={size} color={color} />
 }
 
 function ThemeParticles({ template, active }) {
-  const particles = template.particles || ['✨']
   if (!active) return null
+
+  const particlesList = template.particles || ['✨']
+  const pseudoRandom = (seed) => {
+    const x = Math.sin(seed) * 10000;
+    return x - Math.floor(x);
+  }
+
+  const stableParticles = Array.from({ length: 16 }, (_, i) => {
+    const left = `${pseudoRandom(i * 12.34 + 5.67) * 100}%`
+    const top = `${pseudoRandom(i * 23.45 + 6.78) * 100}%`
+    const duration = `${4 + pseudoRandom(i * 34.56 + 7.89) * 4}s`
+    const delay = `${pseudoRandom(i * 45.67 + 8.90) * 2}s`
+    const fontSize = `${20 + pseudoRandom(i * 56.78 + 9.01) * 20}px`
+    const opacity = 0.4 + pseudoRandom(i * 67.89 + 1.23) * 0.4
+    return {
+      left,
+      top,
+      duration,
+      delay,
+      fontSize,
+      opacity,
+      char: particlesList[i % particlesList.length]
+    }
+  })
+
   return (
     <div className="fixed inset-0 pointer-events-none z-30 overflow-hidden">
-      {Array.from({ length: 16 }, (_, i) => (
+      {stableParticles.map((p, i) => (
         <div
           key={i}
-          className="absolute"
+          className="absolute animate-floating-particle"
           style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            animation: `sk-particle-float ${2 + Math.random() * 2}s ease-in-out ${Math.random()}s infinite`,
-            fontSize: `${20 + Math.random() * 20}px`,
-            opacity: 0.6 + Math.random() * 0.4,
+            left: p.left,
+            top: p.top,
+            animation: `sk-particle-float ${p.duration} ease-in-out ${p.delay} infinite`,
+            fontSize: p.fontSize,
+            opacity: p.opacity,
           }}
         >
-          {particles[i % particles.length]}
+          {p.char}
         </div>
       ))}
     </div>
@@ -37,7 +62,6 @@ function ThemeParticles({ template, active }) {
 }
 
 function PhotoStrip({ photos, template }) {
-  const Icon = getThemeIcon(template.id)
   return (
     <div
       className="rounded-2xl overflow-hidden shadow-2xl"
@@ -69,7 +93,7 @@ function PhotoStrip({ photos, template }) {
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <div style={{ opacity: 0.3 }}>
-                <Icon size="20" color={template.textColor} />
+                <ThemeIcon id={template.id} size="20" color={template.textColor} />
               </div>
             </div>
           )}
@@ -89,13 +113,15 @@ export default function PhotoPage({ template, onComplete, onBack }) {
   const canvasRef = useRef(null)
   const streamRef = useRef(null)
   const mountedRef = useRef(false)
+  const startCameraRef = useRef(null)
   const [photos, setPhotos] = useState([])
   const [countdown, setCountdown] = useState(null)
   const [showFlash, setShowFlash] = useState(false)
-  const [showParticles, setShowParticles] = useState(false)
   const [phase, setPhase] = useState('setup')
   const [camError, setCamError] = useState(null)
   const [autoRunning, setAutoRunning] = useState(false)
+  const [devices, setDevices] = useState([])
+  const [selectedDeviceId, setSelectedDeviceId] = useState('')
   const photosRef = useRef([])
 
   const stopCamera = useCallback(() => {
@@ -109,13 +135,25 @@ export default function PhotoPage({ template, onComplete, onBack }) {
     }
   }, [])
 
-  const startCamera = useCallback(async (retryCount = 0) => {
-    if (streamRef.current) return
+  const startCamera = useCallback(async (deviceId = null, retryCount = 0) => {
+    if (streamRef.current) {
+      stopCamera()
+    }
     setCamError(null)
 
     try {
+      const videoConstraints = {
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
+      }
+      if (deviceId) {
+        videoConstraints.deviceId = { exact: deviceId }
+      } else {
+        videoConstraints.facingMode = 'user'
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
+        video: videoConstraints,
         audio: false,
       })
       streamRef.current = stream
@@ -128,7 +166,11 @@ export default function PhotoPage({ template, onComplete, onBack }) {
     } catch (e) {
       console.error('Camera error:', e)
       if (retryCount < 2) {
-        setTimeout(() => startCamera(retryCount + 1), 500)
+        setTimeout(() => {
+          if (startCameraRef.current) {
+            startCameraRef.current(deviceId, retryCount + 1)
+          }
+        }, 500)
         return
       }
       setCamError('Kamera tidak bisa diakses. Pastikan izin kamera diberikan.')
@@ -137,14 +179,47 @@ export default function PhotoPage({ template, onComplete, onBack }) {
   }, [stopCamera])
 
   useEffect(() => {
+    startCameraRef.current = startCamera
+  }, [startCamera])
+
+  useEffect(() => {
+    const getDevices = async () => {
+      try {
+        const initialStream = await navigator.mediaDevices.getUserMedia({ video: true })
+        initialStream.getTracks().forEach(track => track.stop())
+
+        const deviceInfos = await navigator.mediaDevices.enumerateDevices()
+        const videoDevices = deviceInfos.filter(d => d.kind === 'videoinput')
+        setDevices(videoDevices)
+        if (videoDevices.length > 0) {
+          setSelectedDeviceId(prev => prev || videoDevices[0].deviceId)
+        }
+      } catch (e) {
+        console.error('Error listing camera devices:', e)
+      }
+    }
+    getDevices()
+  }, [])
+
+  useEffect(() => {
     mountedRef.current = true
-    const t = setTimeout(() => startCamera(), 800)
+    let t;
+    if (selectedDeviceId) {
+      t = setTimeout(() => startCamera(selectedDeviceId), 400)
+    } else {
+      t = setTimeout(() => startCamera(), 800)
+    }
     return () => {
       mountedRef.current = false
       stopCamera()
       clearTimeout(t)
     }
-  }, [startCamera, stopCamera])
+  }, [selectedDeviceId, startCamera, stopCamera])
+
+  const handleDeviceChange = (e) => {
+    const devId = e.target.value
+    setSelectedDeviceId(devId)
+  }
 
   const capturePhoto = useCallback(() => {
     if (!videoRef.current || !canvasRef.current) return null
@@ -169,9 +244,7 @@ export default function PhotoPage({ template, onComplete, onBack }) {
 
     const dataUrl = capturePhoto()
     setShowFlash(true)
-    setShowParticles(true)
     setTimeout(() => setShowFlash(false), 500)
-    setTimeout(() => setShowParticles(false), 2500)
 
     const newPhotos = [...photosRef.current, dataUrl]
     photosRef.current = newPhotos
@@ -198,21 +271,16 @@ export default function PhotoPage({ template, onComplete, onBack }) {
     setTimeout(() => onComplete(photosRef.current), 800)
   }, [autoRunning, doCountdownAndCapture, onComplete])
 
-  useEffect(() => {
-    if (phase === 'ready' && !autoRunning) {
-      const t = setTimeout(() => runAutoCapture(), 1500)
-      return () => clearTimeout(t)
-    }
-  }, [phase])
+  const handleStartCapture = () => {
+    runAutoCapture()
+  }
 
   const handleRetry = () => {
     stopCamera()
     setCamError(null)
     setPhase('setup')
-    setTimeout(() => startCamera(), 500)
+    setTimeout(() => startCamera(selectedDeviceId), 500)
   }
-
-  const MainIcon = getThemeIcon(template.id)
 
   return (
     <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ background: template.bg }}>
@@ -222,21 +290,23 @@ export default function PhotoPage({ template, onComplete, onBack }) {
         <div className="fixed inset-0 z-40 animate-flash" style={{ background: '#ffffff' }} />
       )}
 
-      <ThemeParticles template={template} active={showParticles} />
+      <ThemeParticles template={template} active={phase === 'ready' || autoRunning} />
 
-      <div className="flex items-center justify-between px-8 pt-5 pb-2 relative z-10 shrink-0">
+      <div className="flex items-center justify-between px-10 md:px-16 lg:px-24 pt-8 pb-3 relative z-10 shrink-0">
         <button
           onClick={onBack}
           disabled={autoRunning}
-          className="flex items-center gap-2 rounded-xl px-4 py-2 transition-all hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
-          style={{ background: 'rgba(0,0,0,0.2)', color: template.textColor }}
+          className="flex items-center gap-3 rounded-full px-7 py-3.5 transition-all hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed font-bold text-sm backdrop-blur-md shadow-md"
+          style={{ 
+            background: 'rgba(255, 255, 255, 0.15)', 
+            color: template.textColor,
+            border: '1px solid rgba(255, 255, 255, 0.2)'
+          }}
         >
           <ArrowBigLeft size="20" />
-          <span className="font-medium text-sm">Kembali</span>
+          <span>Kembali</span>
         </button>
         <div className="text-center">
-          <br />
-          <br />
           <span
             className="text-2xl font-bold tracking-[0.15em]"
             style={{ color: template.textColor, fontFamily: template.font }}
@@ -263,8 +333,8 @@ export default function PhotoPage({ template, onComplete, onBack }) {
       <div className="flex-1 flex items-center justify-center px-6 pb-4 relative z-10 min-h-0">
         <div className="flex flex-col md:flex-row items-center gap-8 w-full max-w-5xl">
           <div
-            className="relative rounded-3xl overflow-hidden shadow-2xl flex-1"
-            style={{ border: `3px solid ${template.border}`, aspectRatio: '4/3', maxWidth: 720 }}
+            className="relative rounded-3xl overflow-hidden shadow-2xl flex-1 animate-shimmer-border"
+            style={{ border: `3px solid ${template.border}`, aspectRatio: '4/3', maxWidth: 'min(720px, 85vw)' }}
           >
             {camError ? (
               <div className="w-full h-full flex flex-col items-center justify-center gap-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
@@ -280,13 +350,61 @@ export default function PhotoPage({ template, onComplete, onBack }) {
                 </button>
               </div>
             ) : (
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                className="w-full h-full object-cover"
-              />
+              <>
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="w-full h-full object-cover"
+                />
+
+                {phase === 'ready' && !autoRunning && (
+                  <div className="absolute inset-x-0 bottom-0 p-5 md:p-7 flex flex-col sm:flex-row items-center justify-between gap-5 z-20"
+                    style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 60%, transparent 100%)' }}>
+                    
+                    {devices.length > 0 ? (
+                      <div className="flex flex-col gap-1.5 items-start w-full sm:w-auto">
+                        <span className="opacity-70 uppercase tracking-widest text-[10px] font-bold" style={{ color: template.textColor }}>Pilih Kamera</span>
+                        <select
+                          value={selectedDeviceId}
+                          onChange={handleDeviceChange}
+                          className="rounded-2xl px-4 py-2.5 text-sm outline-none backdrop-blur-xl transition-all font-body font-semibold cursor-pointer w-full sm:w-52 md:w-60"
+                          style={{
+                            background: 'rgba(255, 255, 255, 0.1)',
+                            color: '#fff',
+                            border: `1.5px solid ${template.border}55`,
+                            boxShadow: `0 4px 15px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)`,
+                          }}
+                        >
+                          {devices.map(device => (
+                            <option key={device.deviceId} value={device.deviceId} className="bg-[#1a1a2e] text-white">
+                              {device.label || `Kamera ${devices.indexOf(device) + 1}`}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    ) : (
+                      <div className="w-1" />
+                    )}
+
+                    <button
+                      onClick={handleStartCapture}
+                      className="w-full sm:w-auto px-10 py-4 rounded-2xl text-base font-extrabold transition-all hover:scale-105 active:scale-95 shadow-2xl flex items-center justify-center gap-3 cursor-pointer uppercase tracking-widest"
+                      style={{
+                        background: `linear-gradient(135deg, ${template.accent}, ${template.border})`,
+                        color: '#fff',
+                        boxShadow: `0 8px 30px ${template.accent}66, 0 2px 8px rgba(0,0,0,0.3)`,
+                        border: '1px solid rgba(255,255,255,0.15)',
+                        letterSpacing: '0.12em',
+                      }}
+                    >
+                      <Camera size="20" />
+                      Siap! 📸
+                    </button>
+                  </div>
+                )}
+              </>
             )}
 
             {countdown !== null && (
@@ -342,11 +460,11 @@ export default function PhotoPage({ template, onComplete, onBack }) {
             )}
           </div>
 
-          <div className="flex flex-col items-center gap-5 shrink-0">
+          <div className="hidden md:flex flex-col items-center gap-5 shrink-0">
             <PhotoStrip photos={photos} template={template} />
             <div className="text-center space-y-1">
               <div className="flex items-center justify-center gap-2">
-                <MainIcon size="20" color={template.textColor} />
+                <ThemeIcon id={template.id} size="20" color={template.textColor} />
                 <p className="font-medium text-sm" style={{ color: template.textColor }}>
                   {autoRunning
                     ? countdown !== null

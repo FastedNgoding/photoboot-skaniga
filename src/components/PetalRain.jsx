@@ -12,17 +12,22 @@ const PETAL_SHAPES = [
 ]
 
 export default function PetalRain({ count = 20 }) {
+  const pseudoRandom = (seed) => {
+    const x = Math.sin(seed) * 10000;
+    return x - Math.floor(x);
+  }
+
   const petals = useMemo(() => {
     return Array.from({ length: count }, (_, i) => {
       const shape = PETAL_SHAPES[i % PETAL_SHAPES.length]
       return {
         id: i,
         ...shape,
-        left: `${Math.random() * 100}%`,
-        duration: `${4 + Math.random() * 6}s`,
-        delay: `${Math.random() * 8}s`,
-        drift: `${(Math.random() - 0.5) * 200}px`,
-        opacity: 0.4 + Math.random() * 0.6,
+        left: `${pseudoRandom(i * 12.34 + 1.23) * 100}%`,
+        duration: `${4 + pseudoRandom(i * 23.45 + 2.34) * 6}s`,
+        delay: `${pseudoRandom(i * 34.56 + 3.45) * 8}s`,
+        drift: `${(pseudoRandom(i * 45.67 + 4.56) - 0.5) * 200}px`,
+        opacity: 0.4 + pseudoRandom(i * 56.78 + 5.67) * 0.6,
       }
     })
   }, [count])

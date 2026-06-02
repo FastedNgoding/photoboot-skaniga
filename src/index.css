@@ -12,11 +12,18 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+html {
+  scroll-behavior: smooth;
+  overscroll-behavior: none;
+}
+
 body {
   font-family: 'Urbanist', sans-serif;
   background: var(--cream);
   color: var(--dark);
   overflow-x: hidden;
+  overscroll-behavior: none;
+  touch-action: pan-y;
 }
 
 .font-display { font-family: 'Bebas Neue', cursive; }

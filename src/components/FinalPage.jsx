@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import QRCode from "qrcode";
-import { ArrowInDownSquareHalf, Copy, Fullscreen, Home } from "@boxicons/react";
+import { ArrowInDownSquareHalf, Copy, Home } from "@boxicons/react";
 
 import astronotImg1 from "../assets/astronot1.png";
 import astronotImg2 from "../assets/astronot2.png";
@@ -17,6 +17,22 @@ import swImg3 from "../assets/sw3.png";
 import lImg1 from "../assets/l1.png";
 import lImg2 from "../assets/l2.png";
 import lImg3 from "../assets/l3.png";
+
+import dbImg1 from "../assets/db1.png";
+import dbImg2 from "../assets/db2.png";
+import dbImg3 from "../assets/db3.png";
+
+import opImg1 from "../assets/op1.png";
+import opImg2 from "../assets/op2.png";
+import opImg3 from "../assets/op3.png";
+
+import saImg1 from "../assets/sa1.png";
+import saImg2 from "../assets/sa2.png";
+import saImg3 from "../assets/sa3.png";
+
+import omImg1 from "../assets/om1.png";
+import omImg2 from "../assets/om2.png";
+import omImg3 from "../assets/om3.png";
 
 
 const IMGBB_API_KEY = "ab03a93ae55127be2fc02960dfde7834";
@@ -46,8 +62,8 @@ function loadStaticImage(src) {
 
 function drawStar(c, cx, cy, sp, or, ir, col) {
   let r = (Math.PI / 2) * 3,
-    x = cx,
-    y = cy,
+    x,
+    y,
     st = Math.PI / sp;
   c.beginPath();
   c.moveTo(cx, cy - or);
@@ -222,6 +238,107 @@ function drawTie(c, x, y, s, col) {
   c.stroke();
 }
 
+function drawDragonBallOrb(c, x, y, r, col, count) {
+  c.fillStyle = col;
+  c.beginPath();
+  c.arc(x, y, r, 0, Math.PI * 2);
+  c.fill();
+  c.fillStyle = "#ffffff44";
+  c.beginPath();
+  c.arc(x - r * 0.25, y - r * 0.25, r * 0.3, 0, Math.PI * 2);
+  c.fill();
+  const positions = [
+    [0, 0],
+    [-0.3, -0.2], [0.3, -0.2],
+    [-0.15, 0.25], [0.15, 0.25],
+    [-0.3, 0.1], [0.3, 0.1],
+  ];
+  for (let i = 0; i < Math.min(count, 7); i++) {
+    drawStar(c, x + positions[i][0] * r, y + positions[i][1] * r, 5, r * 0.15, r * 0.07, "#cc0000");
+  }
+}
+
+function drawAnchor(c, x, y, s, col) {
+  c.strokeStyle = col;
+  c.lineWidth = 2.5;
+  c.lineCap = "round";
+  c.beginPath();
+  c.arc(x, y - s * 0.6, s * 0.25, 0, Math.PI * 2);
+  c.stroke();
+  c.beginPath();
+  c.moveTo(x, y - s * 0.35);
+  c.lineTo(x, y + s * 0.6);
+  c.stroke();
+  c.beginPath();
+  c.moveTo(x - s * 0.5, y + s * 0.3);
+  c.quadraticCurveTo(x - s * 0.5, y + s * 0.7, x, y + s * 0.6);
+  c.stroke();
+  c.beginPath();
+  c.moveTo(x + s * 0.5, y + s * 0.3);
+  c.quadraticCurveTo(x + s * 0.5, y + s * 0.7, x, y + s * 0.6);
+  c.stroke();
+  c.beginPath();
+  c.moveTo(x - s * 0.35, y - s * 0.1);
+  c.lineTo(x + s * 0.35, y - s * 0.1);
+  c.stroke();
+}
+
+function drawCherryBlossom(c, x, y, s, col) {
+  c.fillStyle = col;
+  for (let i = 0; i < 5; i++) {
+    const angle = (i * Math.PI * 2) / 5 - Math.PI / 2;
+    const px = x + Math.cos(angle) * s * 0.5;
+    const py = y + Math.sin(angle) * s * 0.5;
+    c.beginPath();
+    c.ellipse(px, py, s * 0.35, s * 0.25, angle, 0, Math.PI * 2);
+    c.fill();
+  }
+  c.fillStyle = "#fff176";
+  c.beginPath();
+  c.arc(x, y, s * 0.15, 0, Math.PI * 2);
+  c.fill();
+}
+
+function drawPixelHeart(c, x, y, s, col) {
+  c.fillStyle = col;
+  const pattern = [
+    [0,1,0,0,0,1,0],
+    [1,1,1,0,1,1,1],
+    [1,1,1,1,1,1,1],
+    [0,1,1,1,1,1,0],
+    [0,0,1,1,1,0,0],
+    [0,0,0,1,0,0,0],
+  ];
+  const ps = s / 7;
+  const ox = x - (7 * ps) / 2;
+  const oy = y - (6 * ps) / 2;
+  pattern.forEach((row, ry) => {
+    row.forEach((val, rx) => {
+      if (val) c.fillRect(ox + rx * ps, oy + ry * ps, ps, ps);
+    });
+  });
+}
+
+function drawPixelStar(c, x, y, s, col) {
+  c.fillStyle = col;
+  const pattern = [
+    [0,0,0,1,0,0,0],
+    [0,0,1,1,1,0,0],
+    [1,1,1,1,1,1,1],
+    [0,1,1,1,1,1,0],
+    [0,1,0,1,0,1,0],
+    [1,0,0,0,0,0,1],
+  ];
+  const ps = s / 7;
+  const ox = x - (7 * ps) / 2;
+  const oy = y - (6 * ps) / 2;
+  pattern.forEach((row, ry) => {
+    row.forEach((val, rx) => {
+      if (val) c.fillRect(ox + rx * ps, oy + ry * ps, ps, ps);
+    });
+  });
+}
+
 function drawDeco(c, t, W, H) {
   const id = t.id;
   if (id === "astronaut") {
@@ -318,6 +435,100 @@ function drawDeco(c, t, W, H) {
     c.stroke();
     c.globalAlpha = 1;
   }
+  if (id === "dragonball") {
+    c.globalAlpha = 0.3;
+    drawDragonBallOrb(c, 70, 60, 16, "#ff9800", 4);
+    drawDragonBallOrb(c, W - 65, 70, 14, "#ff9800", 7);
+    drawDragonBallOrb(c, 55, H - 65, 15, "#ff9800", 1);
+    drawDragonBallOrb(c, W - 60, H - 60, 13, "#ff9800", 3);
+    drawStar(c, 100, 45, 5, 10, 5, "#ffcc02");
+    drawStar(c, W - 100, 55, 4, 8, 4, "#ffcc02");
+    drawStar(c, 85, H - 55, 5, 7, 3, "#ffcc02");
+    drawStar(c, W - 85, H - 50, 4, 9, 4, "#ffcc02");
+    c.globalAlpha = 0.08;
+    c.strokeStyle = "#ffa000";
+    c.lineWidth = 1.5;
+    c.beginPath();
+    c.arc(W / 2, H / 2, 130, 0, Math.PI * 2);
+    c.stroke();
+    c.beginPath();
+    c.arc(W / 2, H / 2, 170, 0.8, Math.PI * 1.8);
+    c.stroke();
+    c.globalAlpha = 1;
+  }
+  if (id === "onepiece") {
+    c.globalAlpha = 0.3;
+    drawAnchor(c, 70, 65, 18, "#e53935");
+    drawAnchor(c, W - 70, H - 65, 16, "#e53935");
+    drawStar(c, W - 80, 60, 5, 8, 4, "#29b6f6");
+    drawStar(c, 80, H - 60, 4, 7, 3, "#29b6f6");
+    drawStar(c, W / 2, 30, 5, 6, 3, "#ffffff");
+    drawStar(c, 110, 50, 4, 5, 2.5, "#29b6f6");
+    drawStar(c, W - 110, H - 55, 4, 6, 3, "#29b6f6");
+    c.globalAlpha = 0.08;
+    c.strokeStyle = "#29b6f6";
+    c.lineWidth = 1.5;
+    for (let i = 0; i < 3; i++) {
+      c.beginPath();
+      for (let wx = 0; wx < W; wx += 5) {
+        const wy = H - 80 + i * 20 + Math.sin(wx * 0.03 + i) * 10;
+        wx === 0 ? c.moveTo(wx, wy) : c.lineTo(wx, wy);
+      }
+      c.stroke();
+    }
+    c.globalAlpha = 1;
+  }
+  if (id === "sakura") {
+    c.globalAlpha = 0.3;
+    drawCherryBlossom(c, 65, 55, 16, "#e91e63");
+    drawCherryBlossom(c, W - 60, 60, 14, "#f06292");
+    drawCherryBlossom(c, 70, H - 60, 15, "#e91e63");
+    drawCherryBlossom(c, W - 65, H - 55, 13, "#f06292");
+    drawCherryBlossom(c, W / 2 - 40, 35, 10, "#f48fb1");
+    drawCherryBlossom(c, W / 2 + 50, H - 40, 11, "#f48fb1");
+    drawHeart(c, 100, 50, 12, "#e91e63");
+    drawHeart(c, W - 95, 55, 10, "#f06292");
+    drawHeart(c, 90, H - 50, 11, "#e91e63");
+    drawHeart(c, W - 85, H - 55, 9, "#f06292");
+    c.globalAlpha = 0.06;
+    c.fillStyle = "#f06292";
+    for (let i = 0; i < 15; i++) {
+      c.beginPath();
+      c.arc(
+        40 + (i % 5) * (W / 5),
+        30 + Math.floor(i / 5) * (H / 4),
+        20, 0, Math.PI * 2
+      );
+      c.fill();
+    }
+    c.globalAlpha = 1;
+  }
+  if (id === "retrogame") {
+    c.globalAlpha = 0.3;
+    drawPixelHeart(c, 70, 55, 28, "#00e676");
+    drawPixelHeart(c, W - 70, H - 55, 24, "#b388ff");
+    drawPixelStar(c, W - 75, 60, 26, "#00e676");
+    drawPixelStar(c, 75, H - 60, 22, "#b388ff");
+    drawStar(c, 100, 40, 4, 6, 3, "#00e676");
+    drawStar(c, W - 100, 45, 5, 5, 2.5, "#b388ff");
+    drawStar(c, W / 2, 28, 4, 5, 2.5, "#ffffff");
+    c.globalAlpha = 0.06;
+    c.strokeStyle = "#00e676";
+    c.lineWidth = 0.5;
+    for (let gx = 0; gx < W; gx += 30) {
+      c.beginPath();
+      c.moveTo(gx, 0);
+      c.lineTo(gx, H);
+      c.stroke();
+    }
+    for (let gy = 0; gy < H; gy += 30) {
+      c.beginPath();
+      c.moveTo(0, gy);
+      c.lineTo(W, gy);
+      c.stroke();
+    }
+    c.globalAlpha = 1;
+  }
 }
 
 function buildStrip(photos, template) {
@@ -349,16 +560,12 @@ function buildStrip(photos, template) {
         img.src = src;
       });
     Promise.all(photos.map((p) => loadImg(p)))
-      // .then((imgs) => {
       .then(async (imgs) => {
-        const pw = W - PAD * 2;
-
         imgs.forEach((img, i) => {
           const y = PAD + i * (PH + GAP);
           const x = PAD;
           const pw = W - PAD * 2;
 
-          // Clear slot dengan background tema
           c.fillStyle = template.border + "11";
           c.fillRect(x, y, pw, PH);
 
@@ -367,29 +574,23 @@ function buildStrip(photos, template) {
           c.rect(x, y, pw, PH);
           c.clip();
 
-          // Hitung scale agar foto MEMENUHI slot (cover, tidak contain)
           const sx = pw / img.width;
           const sy = PH / img.height;
           const s = Math.max(sx, sy);
 
           const dw = img.width * s;
           const dh = img.height * s;
-          const dx = x + (pw - dw) / 2;
-          const dy = y + (PH - dh) / 2;
 
-          // Mirror: translate ke tengah slot, flip, draw
           c.translate(x + pw / 2, y + PH / 2);
           c.scale(-1, 1);
           c.drawImage(img, -dw / 2, -dh / 2, dw, dh);
 
           c.restore();
 
-          // Frame
           c.strokeStyle = template.border + "77";
           c.lineWidth = 4;
           c.strokeRect(x, y, pw, PH);
 
-          // Counter badge
           c.fillStyle = "rgba(0,0,0,0.5)";
           c.fillRect(x + pw - 42, y + PH - 24, 42, 24);
           c.font = 'bold 12px "Urbanist", sans-serif';
@@ -398,8 +599,6 @@ function buildStrip(photos, template) {
           c.fillText(`${i + 1}/${imgs.length}`, x + pw - 8, y + PH - 8);
           c.textAlign = "left";
         });
-
-        // Tambahan decoration stiker
         if (template.id === "astronaut") {
           const imageAstrounot1 = await loadStaticImage(astronotImg1);
           const imageAstrounot2 = await loadStaticImage(astronotImg2);
@@ -431,6 +630,38 @@ function buildStrip(photos, template) {
           c.drawImage(imageL1, 5, -5, 130, 130);
           c.drawImage(imageL2, PAD * 13, 36 * 21 / 2, 100, 100);
           c.drawImage(imageL3, 5, 36 * 20 - 40, 120, 135);
+        }
+        if (template.id === "dragonball") {
+          const imgDb1 = await loadStaticImage(dbImg1);
+          const imgDb2 = await loadStaticImage(dbImg2);
+          const imgDb3 = await loadStaticImage(dbImg3);
+          c.drawImage(imgDb1, -10, 5, 140, 140);
+          c.drawImage(imgDb2, PAD * 13, 36 * 20 / 2 - 30, 130, 130);
+          c.drawImage(imgDb3, 5, 36 * 20 - 30, 130, 130);
+        }
+        if (template.id === "onepiece") {
+          const imgOp1 = await loadStaticImage(opImg1);
+          const imgOp2 = await loadStaticImage(opImg2);
+          const imgOp3 = await loadStaticImage(opImg3);
+          c.drawImage(imgOp1, -10, 5, 140, 140);
+          c.drawImage(imgOp2, PAD * 13, 36 * 20 / 2 - 30, 140, 140);
+          c.drawImage(imgOp3, 5, 36 * 20 - 30, 100, 130);
+        }
+        if (template.id === "sakura") {
+          const imgSa1 = await loadStaticImage(saImg1);
+          const imgSa2 = await loadStaticImage(saImg2);
+          const imgSa3 = await loadStaticImage(saImg3);
+          c.drawImage(imgSa1, 10, 12, 100, 140);
+          c.drawImage(imgSa2, PAD * 13, 36 * 20 / 2 - 30, 120, 140);
+          c.drawImage(imgSa3, 0, 36 * 20 - 30, 130, 130);
+        }
+        if (template.id === "omnom") {
+          const imgOm1 = await loadStaticImage(omImg1);
+          const imgOm2 = await loadStaticImage(omImg2);
+          const imgOm3 = await loadStaticImage(omImg3);
+          c.drawImage(imgOm1, 10, 12, 130, 140);
+          c.drawImage(imgOm2, PAD * 13, 36 * 20 / 2 - 30, 120, 120);
+          c.drawImage(imgOm3, 0, 36 * 20 - 30, 130, 130);
         }
 
         const fy = H - FH + 24;
@@ -600,7 +831,15 @@ export default function FinalPage({ photos, template, onRestart }) {
                 ? "#4488ff"
                 : template.id === "lotso"
                   ? "#D2691E"
-                  : "#ff6b9d",
+                  : template.id === "dragonball"
+                    ? "#ffa000"
+                    : template.id === "onepiece"
+                      ? "#e53935"
+                      : template.id === "sakura"
+                        ? "#e91e63"
+                        : template.id === "retrogame"
+                          ? "#00e676"
+                          : "#ff6b9d",
           light: "#ffffff",
         },
         errorCorrectionLevel: "H",
@@ -615,7 +854,15 @@ export default function FinalPage({ photos, template, onRestart }) {
   }, [photos, template]);
 
   useEffect(() => {
-    buildAndUpload();
+    let active = true;
+    setTimeout(() => {
+      if (active) {
+        buildAndUpload();
+      }
+    }, 0);
+    return () => {
+      active = false;
+    };
   }, [buildAndUpload]);
 
   const download = () => {
@@ -631,11 +878,11 @@ export default function FinalPage({ photos, template, onRestart }) {
   };
 
   const copyLink = async () => {
-    if (!shareUrl || shareUrl.startsWith("data:")) return;
+    if (!shareUrl) return;
     try {
       await navigator.clipboard.writeText(shareUrl);
       setToast(true);
-      setTimeout(() => setToast(false), 2000);
+      setTimeout(() => setToast(false), 3000);
     } catch (e) {
       console.error(e);
     }
@@ -644,23 +891,6 @@ export default function FinalPage({ photos, template, onRestart }) {
   const handleRestart = () => {
     exitFull();
     onRestart();
-  };
-
-  const msgs = {
-    idle: "",
-    building: "Menyusun foto strip",
-    uploading: "Mengupload ke cloud",
-    "generating-qr": "Membuat QR Code",
-    done: "Selesai! Scan QR untuk simpan",
-    error: "Terjadi kesalahan",
-  };
-  const pct = {
-    idle: 0,
-    building: 25,
-    uploading: 60,
-    "generating-qr": 85,
-    done: 100,
-    error: 0,
   };
 
   return (
@@ -727,9 +957,8 @@ export default function FinalPage({ photos, template, onRestart }) {
           </div>
         </div>
       )}
-      <div className="flex items-center justify-center px-8 pt-4 pb-2 relative z-10 shrink-0">
+      <div className="flex items-center justify-center px-10 md:px-16 lg:px-24 pt-8 pb-3 relative z-10 shrink-0">
         <div className="text-center">
-          <br />
           <span
             className="text-2xl font-bold tracking-[0.2em]"
             style={{
@@ -748,40 +977,7 @@ export default function FinalPage({ photos, template, onRestart }) {
       </div>
       {status !== "done" && status !== "error" && (
         <div className="relative z-10 mx-8 mb-3 shrink-0">
-          <div
-            className="rounded-2xl px-5 py-3 backdrop-blur-md"
-            style={{
-              background: "rgba(0,0,0,0.4)",
-              border: `1px solid ${template.border}33`,
-            }}
-          >
-            <div className="flex items-center justify-between mb-2">
-              <p
-                className="font-medium text-sm"
-                style={{ color: template.textColor }}
-              >
-                {msgs[status]}
-              </p>
-              <span
-                className="text-xs font-mono opacity-60"
-                style={{ color: template.textColor }}
-              >
-                {pct[status]}%
-              </span>
-            </div>
-            <div
-              className="h-2 rounded-full overflow-hidden"
-              style={{ background: "rgba(255,255,255,0.1)" }}
-            >
-              <div
-                className="h-full rounded-full transition-all duration-700 ease-out"
-                style={{
-                  width: `${pct[status]}%`,
-                  background: `linear-gradient(90deg, ${template.border}, ${template.textColor})`,
-                }}
-              />
-            </div>
-          </div>
+          
         </div>
       )}
       <div className="flex-1 flex flex-col lg:flex-row items-center justify-center gap-5 px-6 pb-3 relative z-10 min-h-0 overflow-y-auto">
@@ -801,10 +997,8 @@ export default function FinalPage({ photos, template, onRestart }) {
                   className="w-full h-auto max-w-full object-contain"
                   ref={stripRef}
                   style={{
-                    border: `4px solid ${template.border}`,
-                    boxShadow: `0 25px 70px ${template.border}33, 0 0 0 1px ${template.border}22`,
-                    maxWidth: "min(420px, 45vw)",
-                    maxHeight: "68vh",
+                    maxWidth: "min(420px, 80vw)",
+                    maxHeight: "60vh",
                   }}
                 />
               </div>
@@ -875,7 +1069,7 @@ export default function FinalPage({ photos, template, onRestart }) {
             style={{
               background: "rgba(0,0,0,0.35)",
               border: `2px solid ${template.border}33`,
-              minWidth: 220,
+              minWidth: 180,
               boxShadow: `0 12px 45px ${template.border}22`,
             }}
           >
@@ -970,18 +1164,18 @@ export default function FinalPage({ photos, template, onRestart }) {
               : "Mode offline aktif • Download untuk simpan"}
           </p>
         )}
-        <center>
-        <button
-          onClick={handleRestart}
-          className="w-50 h-11 flex justify-center items-center rounded-2xl px-8 py-3 font-bold text-white transition-all duration-300 hover:scale-105 active:scale-95 backdrop-blur-md"
-          style={{
-            background: "rgba(255,255,255,0.1)",
-            border: `1px solid ${template.border}44`,
-          }}
-        >
-          <Home /> <p>Kembali ke Beranda</p>
-        </button>
-        </center>
+        <div className="flex justify-center">
+          <button
+            onClick={handleRestart}
+            className="w-50 h-11 flex justify-center items-center rounded-2xl px-8 py-3 font-bold text-white transition-all duration-300 hover:scale-105 active:scale-95 backdrop-blur-md gap-2"
+            style={{
+              background: "rgba(255,255,255,0.1)",
+              border: `1px solid ${template.border}44`,
+            }}
+          >
+            <Home /> <span>Kembali ke Beranda</span>
+          </button>
+        </div>
         <div className="h-4"></div>
       </div>
     </div>

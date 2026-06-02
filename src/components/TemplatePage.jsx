@@ -277,7 +277,7 @@ export default function TemplatePage({ onSelect, onBack }) {
         <div className="flex items-center justify-between px-10 md:px-16 lg:px-24 pt-8 pb-3 shrink-0">
           <motion.button 
             onClick={onBack}
-            className="flex items-center justify-center gap-2 rounded-full px-7 py-3.5 transition-all hover:scale-105 active:scale-95 cursor-pointer font-bold text-sm backdrop-blur-md shadow-md"
+            className="flex items-center justify-center gap-2 rounded-full !px-2 !py-1 !mt-2 !ml-2 transition-all hover:scale-105 active:scale-95 cursor-pointer font-bold text-sm backdrop-blur-md shadow-md"
             style={{ 
               background: btnBg, 
               color: textColor,

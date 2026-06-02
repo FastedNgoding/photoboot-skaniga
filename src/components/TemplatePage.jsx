@@ -483,7 +483,7 @@ export default function TemplatePage({ onSelect, onBack }) {
 
         </div>
 
-        <div className="flex flex-col items-center justify-center shrink-0 pb-8 pt-2 z-10 w-full max-w-md mx-auto px-4 select-none">
+        <div className="flex flex-col items-center justify-center shrink-0 pb-8 pt-2 z-10 w-full max-w-md select-none">
           
           <div className="h-16 flex items-center justify-center w-full mb-3 overflow-hidden">
             <AnimatePresence mode="wait">
@@ -496,7 +496,7 @@ export default function TemplatePage({ onSelect, onBack }) {
                 className="text-center"
               >
                 <h2 
-                  className="text-2xl md:text-3xl font-black uppercase tracking-wider mb-0.5 flex items-center justify-center gap-2"
+                  className="text-xl md:text-2xl font-black uppercase tracking-wider mb-0.5 flex items-center justify-center gap-2"
                   style={{ 
                     color: currentTemplate.accent || currentTemplate.border,
                     fontFamily: currentTemplate.font || 'Urbanist, sans-serif',
@@ -504,10 +504,10 @@ export default function TemplatePage({ onSelect, onBack }) {
                   }}
                 >
                   <span>{currentTemplate.name}</span>
-                  <span className="text-xl md:text-2xl">{currentTemplate.emoji}</span>
+                  <span className="text-sm md:text-xl">{currentTemplate.emoji}</span>
                 </h2>
                 <p 
-                  className="text-xs md:text-sm italic font-semibold opacity-75"
+                  className="text-xs italic font-semibold opacity-75"
                   style={{ color: subtitleColor }}
                 >
                   "{currentTemplate.tagline}"
@@ -523,7 +523,7 @@ export default function TemplatePage({ onSelect, onBack }) {
                 <button
                   key={tmpl.id}
                   onClick={() => setActiveIndex(idx)}
-                  className="cursor-pointer transition-all duration-300 border-none outline-none flex items-center justify-center w-11 h-11 bg-transparent"
+                  className="cursor-pointer transition-all duration-300 border-none outline-none flex items-center justify-center w-5 h-5 bg-transparent"
                 >
                   <div
                     style={{
@@ -540,7 +540,7 @@ export default function TemplatePage({ onSelect, onBack }) {
           </div>
 
           <motion.p 
-            className="text-[10px] md:text-xs font-bold uppercase tracking-widest opacity-60 text-center"
+            className="text-[10px] font-bold uppercase tracking-widest opacity-60 text-center !mb-1"
             animate={{ color: subtitleColor }}
           >
             SWIPE ATAU TAP KEMBALI KARTU UNTUK MEMILIH

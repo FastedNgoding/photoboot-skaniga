@@ -9,9 +9,11 @@ import LockScreen from './components/LockScreen'
 import { useMusicPlayer } from './hooks/useMusicPlayer'
 
 export default function App() {
+  // Alur baru: landing → photo → template → final
   const [page, setPage] = useState('landing')
   const [selectedTemplate, setSelectedTemplate] = useState(null)
-  const [capturedPhotos, setCapturedPhotos] = useState([])
+  const [capturedPhotos, setCapturedPhotos] = useState([]) // all photos (5)
+  const [chosenPhotos, setChosenPhotos] = useState([])     // 3 picked by user
   const { isPlaying, toggle, volume, setVolume, tracks, tryAutoPlay } = useMusicPlayer()
 
   const [appConfig, setAppConfig] = useState(() => {
@@ -58,21 +60,24 @@ export default function App() {
       }
     }
     tryAutoPlay()
+    setPage('photo') // Langsung ke foto dulu
+  }
+
+  // PhotoPage selesai: user sudah pilih 3 foto terbaik → ke template
+  const handlePhotosComplete = (photos) => {
+    setChosenPhotos(photos)
     setPage('template')
   }
 
+  // TemplatePage: user pilih template dan klik Simpan → ke final
   const handleTemplateSelect = (tmpl) => {
     setSelectedTemplate(tmpl)
-    setPage('photo')
-  }
-
-  const handlePhotosComplete = (photos) => {
-    setCapturedPhotos(photos)
     setPage('final')
   }
 
   const handleRestart = () => {
     setCapturedPhotos([])
+    setChosenPhotos([])
     setSelectedTemplate(null)
     setPage('landing')
   }
@@ -101,22 +106,28 @@ export default function App() {
           {page === 'landing' && (
             <LandingPage onStart={handleStart} />
           )}
-          {page === 'template' && (
-            <TemplatePage
-              onSelect={handleTemplateSelect}
+
+          {/* Foto dulu — tanpa template */}
+          {page === 'photo' && (
+            <PhotoPage
+              onComplete={handlePhotosComplete}
               onBack={() => setPage('landing')}
             />
           )}
-          {page === 'photo' && selectedTemplate && (
-            <PhotoPage
-              template={selectedTemplate}
-              onComplete={handlePhotosComplete}
-              onBack={() => setPage('template')}
+
+          {/* Setelah pilih 3 foto → pilih template, dengan preview foto */}
+          {page === 'template' && chosenPhotos.length === 3 && (
+            <TemplatePage
+              selectedPhotos={chosenPhotos}
+              onSelect={handleTemplateSelect}
+              onBack={() => setPage('photo')}
             />
           )}
-          {page === 'final' && selectedTemplate && capturedPhotos.length > 0 && (
+
+          {/* Final: QR + download */}
+          {page === 'final' && selectedTemplate && chosenPhotos.length > 0 && (
             <FinalPage
-              photos={capturedPhotos}
+              photos={chosenPhotos}
               template={selectedTemplate}
               onRestart={handleRestart}
             />

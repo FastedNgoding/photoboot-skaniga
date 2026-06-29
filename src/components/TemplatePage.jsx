@@ -181,10 +181,10 @@ export default function TemplatePage({ onSelect, onBack, selectedPhotos }) {
   const { width, height } = dimensions
   const isMobile = width < 640
 
-  // Strip dimensions based on screen
-  const stripH = isMobile ? Math.min(height * 0.55, 420) : Math.min(height * 0.68, 560)
-  const stripW = stripH * 0.52
-  const gap = isMobile ? 20 : 32
+  // Strip dimensions closer to real size (600x1200 ratio)
+  const stripH = isMobile ? Math.min(height * 0.65, 480) : Math.min(height * 0.82, 700)
+  const stripW = stripH * 0.50
+  const gap = isMobile ? 24 : 40
 
   const currentTemplate = TEMPLATES[activeIndex] || TEMPLATES[0]
   const isDark = ['astronaut', 'starwars', 'omnom', 'lotso', 'onepiece', 'dragonball'].includes(currentTemplate.id)

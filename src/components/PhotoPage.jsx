@@ -5,6 +5,8 @@ import {
   Check,
   LoaderLinesAlt,
   ArrowRight,
+  Image as ImageIcon,
+  X
 } from "@boxicons/react";
 
 const TOTAL_CAPTURE = 5;
@@ -26,7 +28,7 @@ export default function PhotoPage({ onComplete, onBack }) {
   const [autoRunning, setAutoRunning] = useState(false);
   const [devices, setDevices] = useState([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState("");
-  const [selected, setSelected] = useState([]); // indices of 3 chosen photos
+  const [selected, setSelected] = useState([]); // Array of indices (max 3), order matters!
 
   const stopCamera = useCallback(() => {
     if (streamRef.current) {
@@ -111,7 +113,7 @@ export default function PhotoPage({ onComplete, onBack }) {
       await new Promise((r) => setTimeout(r, 1000));
     }
     setCountdown(0);
-    await new Promise((r) => setTimeout(r, 200));
+    await new Promise((r) => setTimeout(r, 150));
     const dataUrl = capturePhoto();
     setShowFlash(true);
     setTimeout(() => setShowFlash(false), 500);
@@ -141,8 +143,16 @@ export default function PhotoPage({ onComplete, onBack }) {
   const toggleSelect = (idx) => {
     setSelected((prev) => {
       if (prev.includes(idx)) return prev.filter((i) => i !== idx);
-      if (prev.length >= PICK_COUNT) return prev; // max 3
+      if (prev.length >= PICK_COUNT) return prev; 
       return [...prev, idx];
+    });
+  };
+
+  const removeSlot = (slotIndex) => {
+    setSelected((prev) => {
+      const newSel = [...prev];
+      newSel.splice(slotIndex, 1);
+      return newSel;
     });
   };
 
@@ -172,336 +182,279 @@ export default function PhotoPage({ onComplete, onBack }) {
   // ─── SELECTING PHASE ────────────────────────────────────────────────────────
   if (phase === "selecting") {
     return (
-      <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ background: "linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #0f0f1a 100%)" }}>
-        <style>{`
-          @keyframes sk-sel-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-          .sk-sel-in { animation: sk-sel-in 0.5s ease-out; }
-          @keyframes sk-badge { from { transform: scale(0); } to { transform: scale(1); } }
-          .sk-badge { animation: sk-badge 0.2s cubic-bezier(0.34,1.56,0.64,1); }
-          @keyframes sk-glow { 0%,100% { box-shadow: 0 0 20px #a855f760; } 50% { box-shadow: 0 0 40px #a855f7aa; } }
-          .sk-glow { animation: sk-glow 2s ease-in-out infinite; }
-        `}</style>
+      <div className="fixed inset-0 flex flex-col overflow-hidden select-none" style={{ background: "#0a0a0f" }}>
+        
+        {/* Glow Effects */}
+        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full blur-[120px] bg-purple-600/20 pointer-events-none" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full blur-[120px] bg-blue-600/20 pointer-events-none" />
 
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 md:px-12 pt-8 pb-4 shrink-0">
+        <div className="flex items-center justify-between px-6 md:px-12 pt-8 pb-4 shrink-0 relative z-10">
           <button
             onClick={handleRetakeAll}
-            className="flex items-center gap-2 rounded-full px-4 py-2 font-bold text-sm backdrop-blur-md transition-all hover:scale-105 active:scale-95"
-            style={{ background: "rgba(255,255,255,0.08)", color: "#e2e8f0", border: "1px solid rgba(255,255,255,0.15)" }}
+            className="flex items-center gap-2 rounded-full px-4 py-2 font-bold text-sm backdrop-blur-md transition-all hover:scale-105 active:scale-95 text-white/80 border border-white/10 bg-white/5"
           >
             <ArrowBigLeft size="18" />
             Ulangi Foto
           </button>
-          <div className="text-center">
-            <p className="text-xl md:text-2xl font-black tracking-[0.15em] text-white">PILIH 3 FOTO</p>
-            <div className="h-0.5 w-12 mx-auto mt-1 rounded-full" style={{ background: "#a855f7" }} />
+          <div className="text-center absolute left-1/2 -translate-x-1/2">
+            <p className="text-xl md:text-2xl font-black tracking-[0.2em] text-white">PILIH FOTO</p>
+            <div className="h-0.5 w-12 mx-auto mt-1 rounded-full bg-gradient-to-r from-purple-500 to-blue-500" />
           </div>
-          <div className="w-28 flex justify-end">
-            <div className="rounded-full px-4 py-1.5 text-sm font-bold" style={{ background: selected.length === PICK_COUNT ? "#a855f7" : "rgba(255,255,255,0.08)", color: "#fff", border: "1px solid rgba(168,85,247,0.4)", transition: "all 0.3s" }}>
-              {selected.length}/{PICK_COUNT}
+        </div>
+
+        <p className="text-center text-sm text-white/50 font-medium pb-4 shrink-0 px-4 relative z-10">
+          Pilih 3 foto terbaik untuk dicetak ke dalam strip.
+        </p>
+
+        <div className="flex-1 flex flex-col items-center justify-center px-4 min-h-0 relative z-10 w-full max-w-5xl mx-auto overflow-y-auto">
+          
+          {/* SLOTS AREA */}
+          <div className="w-full flex justify-center gap-3 md:gap-6 mb-8 md:mb-12">
+            {[0, 1, 2].map(slotIndex => {
+              const photoIdx = selected[slotIndex];
+              const isFilled = photoIdx !== undefined;
+
+              return (
+                <div key={slotIndex} className="relative flex flex-col items-center">
+                  <div 
+                    onClick={() => isFilled && removeSlot(slotIndex)}
+                    className="relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 shadow-xl"
+                    style={{
+                      width: 'clamp(90px, 22vw, 160px)',
+                      aspectRatio: '3/4',
+                      background: isFilled ? 'transparent' : 'rgba(255,255,255,0.03)',
+                      border: isFilled ? '2px solid #a855f7' : '2px dashed rgba(255,255,255,0.2)',
+                      boxShadow: isFilled ? '0 0 20px rgba(168,85,247,0.3)' : 'none',
+                    }}
+                  >
+                    {isFilled ? (
+                      <>
+                        <img src={photos[photoIdx]} alt={`Slot ${slotIndex + 1}`} className="w-full h-full object-cover transform -scale-x-100" />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                          <X size="32" color="#fff" />
+                        </div>
+                        <div className="absolute bottom-2 right-2 w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center shadow-lg border border-white/20">
+                          <span className="text-white text-xs font-black">{slotIndex + 1}</span>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center text-white/20 gap-2">
+                        <ImageIcon size="32" />
+                        <span className="text-xs font-bold uppercase tracking-widest">Pilih {slotIndex + 1}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* GRID AREA */}
+          <div className="w-full">
+            <p className="text-xs font-bold text-white/30 uppercase tracking-widest mb-3 px-2">Hasil Jepretan ({TOTAL_CAPTURE})</p>
+            <div className="flex gap-3 md:gap-4 overflow-x-auto pb-4 px-2 snap-x snap-mandatory hide-scrollbar justify-start md:justify-center">
+              {photos.map((photo, idx) => {
+                const rank = selected.indexOf(idx);
+                const isSelected = rank !== -1;
+                const isMaxed = selected.length >= PICK_COUNT && !isSelected;
+                
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => toggleSelect(idx)}
+                    disabled={isMaxed}
+                    className="relative shrink-0 rounded-xl overflow-hidden outline-none border-none cursor-pointer transition-all duration-300 snap-center"
+                    style={{
+                      width: 'clamp(120px, 28vw, 180px)',
+                      aspectRatio: '4/3',
+                      opacity: isMaxed ? 0.3 : 1,
+                      transform: isSelected ? "scale(0.95)" : "scale(1)",
+                      boxShadow: isSelected
+                        ? "0 0 0 3px #a855f7"
+                        : "0 10px 25px rgba(0,0,0,0.5)",
+                    }}
+                  >
+                    <img src={photo} alt={`Foto ${idx + 1}`} className="w-full h-full object-cover transform -scale-x-100" />
+                    
+                    {!isSelected && (
+                      <div className="absolute top-2 left-2 w-6 h-6 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center border border-white/10">
+                        <span className="text-white/70 text-[10px] font-bold">{idx + 1}</span>
+                      </div>
+                    )}
+
+                    {isSelected && (
+                      <div className="absolute inset-0 bg-purple-500/20 flex items-center justify-center backdrop-blur-[2px]">
+                        <div className="w-10 h-10 rounded-full bg-purple-500 shadow-xl flex items-center justify-center border-2 border-white/20">
+                          <Check size="24" color="#fff" />
+                        </div>
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
 
-        <p className="text-center text-sm text-slate-400 font-medium pb-4 shrink-0 px-4">
-          Tap foto yang paling bagus — pilih <strong className="text-white">3 foto</strong> untuk dilanjutkan ke pemilihan frame
-        </p>
-
-        {/* Photo grid */}
-        <div className="flex-1 overflow-y-auto px-4 md:px-8 pb-4 min-h-0">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 max-w-5xl mx-auto">
-            {photos.map((photo, idx) => {
-              const rank = selected.indexOf(idx);
-              const isSelected = rank !== -1;
-              const isMaxed = selected.length >= PICK_COUNT && !isSelected;
-              return (
-                <button
-                  key={idx}
-                  onClick={() => toggleSelect(idx)}
-                  disabled={isMaxed}
-                  className="relative rounded-2xl overflow-hidden sk-sel-in outline-none border-none cursor-pointer transition-all duration-300"
-                  style={{
-                    aspectRatio: "4/3",
-                    opacity: isMaxed ? 0.35 : 1,
-                    transform: isSelected ? "scale(1.03)" : "scale(1)",
-                    boxShadow: isSelected
-                      ? "0 0 0 3px #a855f7, 0 8px 30px rgba(168,85,247,0.5)"
-                      : "0 4px 20px rgba(0,0,0,0.4)",
-                    animationDelay: `${idx * 0.08}s`,
-                  }}
-                >
-                  <img src={photo} alt={`Foto ${idx + 1}`} className="w-full h-full object-cover" />
-
-                  {/* Overlay when not selected */}
-                  {!isSelected && (
-                    <div className="absolute inset-0 flex items-end justify-end p-2"
-                      style={{ background: "linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 60%)" }}>
-                      <span className="text-white/60 text-xs font-bold">#{idx + 1}</span>
-                    </div>
-                  )}
-
-                  {/* Selected badge */}
-                  {isSelected && (
-                    <>
-                      <div className="absolute inset-0" style={{ background: "rgba(168,85,247,0.15)" }} />
-                      <div
-                        className="absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center sk-badge"
-                        style={{ background: "#a855f7", boxShadow: "0 4px 12px rgba(168,85,247,0.6)" }}
-                      >
-                        <span className="text-white font-black text-sm">{rank + 1}</span>
-                      </div>
-                      <div className="absolute bottom-2 left-2 rounded-lg px-2 py-0.5 text-xs font-bold text-white"
-                        style={{ background: "rgba(168,85,247,0.85)" }}>
-                        Terpilih
-                      </div>
-                    </>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
         {/* Bottom CTA */}
-        <div className="shrink-0 px-4 pb-8 pt-4 flex flex-col items-center gap-3">
-          {selected.length < PICK_COUNT && (
-            <p className="text-slate-400 text-sm">
-              Pilih {PICK_COUNT - selected.length} foto lagi
-            </p>
-          )}
+        <div className="shrink-0 px-4 pb-8 pt-4 flex flex-col items-center gap-3 relative z-10 bg-gradient-to-t from-[#0a0a0f] to-transparent">
           <button
             onClick={handleConfirmSelection}
             disabled={selected.length !== PICK_COUNT}
-            className="flex items-center gap-3 rounded-2xl px-10 py-4 font-extrabold text-base uppercase tracking-widest transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
+            className="flex items-center justify-center gap-3 w-full max-w-sm rounded-2xl py-4 font-black text-sm md:text-base uppercase tracking-widest transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
             style={{
-              background: selected.length === PICK_COUNT ? "linear-gradient(135deg, #a855f7, #7c3aed)" : "rgba(255,255,255,0.08)",
-              color: "#fff",
-              boxShadow: selected.length === PICK_COUNT ? "0 8px 30px rgba(168,85,247,0.5)" : "none",
-              border: "1px solid rgba(255,255,255,0.1)",
+              background: selected.length === PICK_COUNT ? "linear-gradient(135deg, #a855f7, #3b82f6)" : "rgba(255,255,255,0.05)",
+              color: selected.length === PICK_COUNT ? "#fff" : "rgba(255,255,255,0.4)",
+              boxShadow: selected.length === PICK_COUNT ? "0 10px 30px rgba(168,85,247,0.4)" : "none",
+              border: selected.length === PICK_COUNT ? "none" : "1px solid rgba(255,255,255,0.1)",
             }}
           >
-            <span>Pilih Frame</span>
-            <ArrowRight size="20" />
+            {selected.length === PICK_COUNT ? (
+              <><span>Pilih Frame</span><ArrowRight size="20" /></>
+            ) : (
+              <span>Pilih {PICK_COUNT - selected.length} Foto Lagi</span>
+            )}
           </button>
         </div>
+
+        <style>{`
+          .hide-scrollbar::-webkit-scrollbar { display: none; }
+          .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        `}</style>
       </div>
     );
   }
 
   // ─── CAMERA PHASE ──────────────────────────────────────────────────────────
-  const neutralBg = "linear-gradient(135deg, #0f0c29, #302b63, #24243e)";
-  const accentColor = "#a855f7";
-  const textColor = "#e2e8f0";
-  const borderColor = "#7c3aed";
-
+  
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ background: neutralBg }}>
+    <div className="fixed inset-0 flex flex-col overflow-hidden bg-black select-none">
       <canvas ref={canvasRef} className="hidden" />
 
       {showFlash && (
-        <div className="fixed inset-0 z-40 animate-flash" style={{ background: "#ffffff" }} />
+        <div className="fixed inset-0 z-50 bg-white" style={{ animation: "flash 0.5s ease-out forwards" }} />
       )}
 
-      {/* Particles bg */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        {["📸","✨","🌟","💫","📷"].map((c, i) => (
-          <div key={i} className="absolute text-2xl opacity-10"
-            style={{
-              left: `${15 + i * 18}%`, top: `${10 + (i % 3) * 25}%`,
-              animation: `sk-particle-float ${4 + i}s ease-in-out ${i * 0.5}s infinite`,
-            }}>
-            {c}
-          </div>
-        ))}
-      </div>
-
-      {/* Header */}
-      <div className="flex items-center justify-between px-6 md:px-12 pt-8 pb-3 relative z-10 shrink-0">
+      {/* Header Premium Camera UI */}
+      <div className="absolute top-0 inset-x-0 z-20 bg-gradient-to-b from-black/80 to-transparent pt-8 pb-6 px-6 md:px-12 flex items-center justify-between pointer-events-none">
         <button
           onClick={onBack}
           disabled={autoRunning}
-          className="flex items-center gap-2 rounded-full px-3 py-1.5 font-bold text-sm backdrop-blur-md transition-all hover:scale-105 active:scale-95 disabled:opacity-30"
-          style={{ background: "rgba(255,255,255,0.08)", color: textColor, border: "1px solid rgba(255,255,255,0.15)" }}
+          className="pointer-events-auto flex items-center justify-center w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white transition-all hover:bg-white/20 active:scale-90 disabled:opacity-30"
         >
           <ArrowBigLeft size="20" />
-          <span>Kembali</span>
         </button>
 
-        <div className="text-center">
-          <span className="text-xl md:text-2xl font-black tracking-[0.15em]" style={{ color: textColor }}>
-            SESI FOTO
-          </span>
-          <div className="h-0.5 w-12 mx-auto mt-1 rounded-full" style={{ background: accentColor }} />
-        </div>
-
-        {/* Progress dots */}
-        <div className="flex gap-2">
+        {/* Progress dots in center */}
+        <div className="flex gap-2.5 px-4 py-2 rounded-full bg-black/40 backdrop-blur-md border border-white/10">
           {Array.from({ length: TOTAL_CAPTURE }).map((_, i) => (
-            <div key={i} className="w-2.5 h-2.5 rounded-full transition-all duration-500"
+            <div key={i} className="transition-all duration-500 rounded-full"
               style={{
-                background: photos[i] ? accentColor : "rgba(255,255,255,0.2)",
-                transform: photos[i] ? "scale(1.3)" : "scale(1)",
-                boxShadow: photos[i] ? `0 0 8px ${accentColor}` : "none",
+                width: photos[i] ? 18 : 8,
+                height: 8,
+                background: photos[i] ? '#a855f7' : 'rgba(255,255,255,0.3)',
+                boxShadow: photos[i] ? '0 0 10px #a855f7' : 'none',
               }} />
           ))}
         </div>
+
+        <div className="w-10 h-10" /> {/* Balancer */}
       </div>
 
-      {/* Main content */}
-      <div className="flex-1 flex items-center justify-center px-4 pb-4 relative z-10 min-h-0">
-        <div className="flex flex-col md:flex-row items-center gap-6 w-full max-w-5xl">
+      {/* Main content - Full screen camera feel */}
+      <div className="flex-1 relative w-full h-full flex items-center justify-center bg-[#050505]">
+        
+        <div className="relative w-full max-w-[1280px] h-full max-h-[85vh] mx-auto md:rounded-[40px] overflow-hidden flex items-center justify-center">
+          
+          {camError ? (
+            <div className="flex flex-col items-center gap-4 p-8 text-center bg-white/5 backdrop-blur-md rounded-3xl border border-white/10">
+              <Camera size="56" className="text-white/40" />
+              <p className="font-medium text-white/80">{camError}</p>
+              <button onClick={handleRetry} className="flex items-center gap-2 rounded-xl px-6 py-3 font-bold text-sm bg-white/10 hover:bg-white/20 text-white transition-all">
+                <LoaderLinesAlt size="16" /> Coba Lagi
+              </button>
+            </div>
+          ) : (
+            <div className="relative w-full h-full flex items-center justify-center">
+              {/* Video view with grid overlay */}
+              <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover transform -scale-x-100" />
+              
+              {/* Camera Grid Lines (Rule of thirds) */}
+              {phase === "ready" && (
+                <div className="absolute inset-0 pointer-events-none opacity-20">
+                  <div className="absolute top-1/3 left-0 right-0 h-[1px] bg-white shadow-[0_1px_2px_rgba(0,0,0,0.5)]" />
+                  <div className="absolute top-2/3 left-0 right-0 h-[1px] bg-white shadow-[0_1px_2px_rgba(0,0,0,0.5)]" />
+                  <div className="absolute left-1/3 top-0 bottom-0 w-[1px] bg-white shadow-[1px_0_2px_rgba(0,0,0,0.5)]" />
+                  <div className="absolute left-2/3 top-0 bottom-0 w-[1px] bg-white shadow-[1px_0_2px_rgba(0,0,0,0.5)]" />
+                </div>
+              )}
 
-          {/* Camera preview */}
-          <div className="relative rounded-3xl overflow-hidden shadow-2xl flex-1"
-            style={{ border: `3px solid ${borderColor}`, aspectRatio: "4/3", maxWidth: "min(720px, 85vw)" }}>
+              {/* Countdown overlay */}
+              {countdown !== null && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-[2px]">
+                  {countdown === 0 ? (
+                    <div className="w-32 h-32 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center animate-ping">
+                      <Camera size="60" color="#fff" />
+                    </div>
+                  ) : (
+                    <span className="font-black text-white drop-shadow-[0_0_40px_rgba(168,85,247,0.8)] sk-countdown-text" style={{ fontSize: 'clamp(120px, 20vw, 250px)' }}>
+                      {countdown}
+                    </span>
+                  )}
+                </div>
+              )}
 
-            {camError ? (
-              <div className="w-full h-full flex flex-col items-center justify-center gap-4" style={{ background: "rgba(0,0,0,0.6)" }}>
-                <Camera size="48" color={textColor} style={{ opacity: 0.5 }} />
-                <p className="font-medium text-sm text-center px-4" style={{ color: textColor }}>{camError}</p>
-                <button onClick={handleRetry} className="flex items-center gap-2 rounded-xl px-5 py-2.5 font-bold text-sm transition-all hover:scale-105"
-                  style={{ background: accentColor, color: "#fff" }}>
-                  <LoaderLinesAlt size="16" />
-                  Coba Lagi
-                </button>
-              </div>
-            ) : (
-              <>
-                <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+              {/* Status info */}
+              <div className="absolute bottom-8 inset-x-0 flex flex-col items-center gap-4 pointer-events-none">
+                
+                {/* Camera selector (Desktop only basically) */}
+                {phase === "ready" && !autoRunning && devices.length > 1 && (
+                  <select value={selectedDeviceId} onChange={(e) => setSelectedDeviceId(e.target.value)}
+                    className="pointer-events-auto appearance-none rounded-full px-6 py-2.5 text-xs font-bold tracking-widest uppercase outline-none bg-black/50 backdrop-blur-md text-white border border-white/20 hover:bg-black/70 transition-colors text-center text-center-last">
+                    {devices.map((d, i) => (
+                      <option key={d.deviceId} value={d.deviceId} className="bg-[#111] text-white text-center">
+                        {d.label || `Kamera ${i + 1}`}
+                      </option>
+                    ))}
+                  </select>
+                )}
 
-                {/* Camera selector */}
-                {phase === "ready" && !autoRunning && devices.length > 0 && (
-                  <div className="absolute inset-x-0 bottom-0 p-4"
-                    style={{ background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%)" }}>
-                    <select value={selectedDeviceId} onChange={(e) => setSelectedDeviceId(e.target.value)}
-                      className="rounded-xl px-4 py-2 text-sm outline-none font-semibold"
-                      style={{ background: "rgba(255,255,255,0.1)", color: "#fff", border: `1.5px solid ${borderColor}55` }}>
-                      {devices.map((d) => (
-                        <option key={d.deviceId} value={d.deviceId} className="bg-[#1a1a2e] text-white">
-                          {d.label || `Kamera ${devices.indexOf(d) + 1}`}
-                        </option>
-                      ))}
-                    </select>
+                {/* Shutter Button area */}
+                {phase === "ready" && !autoRunning && (
+                  <button
+                    onClick={runAutoCapture}
+                    className="pointer-events-auto relative group flex items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-full bg-white/20 backdrop-blur-md border-[3px] border-white transition-all hover:scale-105 active:scale-95"
+                  >
+                    <div className="absolute inset-2 bg-white rounded-full transition-all group-hover:scale-95" />
+                  </button>
+                )}
+
+                {autoRunning && countdown === null && photos.length < TOTAL_CAPTURE && (
+                  <div className="flex items-center gap-3 px-5 py-2.5 rounded-full bg-black/60 backdrop-blur-md text-white border border-white/10">
+                    <LoaderLinesAlt size="16" className="animate-spin" />
+                    <span className="text-sm font-bold tracking-widest uppercase">Menyiapkan...</span>
                   </div>
                 )}
-              </>
-            )}
-
-            {/* Countdown overlay */}
-            {countdown !== null && (
-              <div className="absolute inset-0 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.5)" }}>
-                <div className="sk-countdown-pop">
-                  {countdown === 0
-                    ? <Camera size="80" color={accentColor} />
-                    : <span className="font-black" style={{ fontSize: 140, color: accentColor, textShadow: `0 0 60px ${accentColor}88` }}>{countdown}</span>
-                  }
-                </div>
               </div>
-            )}
 
-            {/* Counter badge */}
-            <div className="absolute top-4 left-4">
-              <div className="rounded-xl px-3 py-1.5 text-xs font-bold flex items-center gap-2"
-                style={{ background: "rgba(0,0,0,0.6)", color: textColor, backdropFilter: "blur(8px)" }}>
-                <Camera size="14" />
-                {photos.length}/{TOTAL_CAPTURE} foto
-              </div>
             </div>
-
-            {/* Loading next */}
-            {autoRunning && countdown === null && photos.length < TOTAL_CAPTURE && (
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
-                <div className="rounded-xl px-5 py-2 text-sm font-medium flex items-center gap-2"
-                  style={{ background: "rgba(0,0,0,0.7)", color: textColor }}>
-                  <LoaderLinesAlt size="16" className="animate-spin" />
-                  Foto berikutnya...
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Side: thumbnails + start button */}
-          <div className="hidden md:flex flex-col items-center gap-4 shrink-0">
-            {/* Thumbnail strip */}
-            <div className="rounded-2xl overflow-hidden shadow-xl p-2 flex flex-col gap-1.5"
-              style={{ background: "rgba(255,255,255,0.06)", border: `2px solid ${borderColor}55`, width: 110 }}>
-              {Array.from({ length: TOTAL_CAPTURE }).map((_, i) => (
-                <div key={i} className="rounded-lg overflow-hidden flex items-center justify-center"
-                  style={{ width: 90, height: 60, background: photos[i] ? "transparent" : "rgba(255,255,255,0.05)", border: `1px solid ${borderColor}44` }}>
-                  {photos[i]
-                    ? <img src={photos[i]} alt={`f${i}`} className="w-full h-full object-cover" style={{ transform: "scaleX(-1)" }} />
-                    : <Camera size="16" color={accentColor} style={{ opacity: 0.3 }} />
-                  }
-                </div>
-              ))}
-              <div className="text-center mt-1">
-                <span className="text-[9px] font-bold tracking-wider" style={{ color: accentColor }}>SKANIGA</span>
-              </div>
-            </div>
-
-            <p className="text-xs text-center opacity-50" style={{ color: textColor }}>
-              {autoRunning
-                ? countdown !== null ? "Berpose! 📸" : photos.length < TOTAL_CAPTURE ? "Siapkan pose..." : "Selesai!"
-                : phase === "ready" ? "Tekan untuk mulai" : "Mempersiapkan..."}
-            </p>
-
-            {phase === "ready" && !autoRunning && (
-              <button
-                onClick={runAutoCapture}
-                className="w-full px-8 py-4 rounded-2xl font-extrabold text-base uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-2xl flex items-center justify-center gap-3"
-                style={{
-                  background: `linear-gradient(135deg, ${accentColor}, ${borderColor})`,
-                  color: "#fff",
-                  boxShadow: `0 8px 30px ${accentColor}66`,
-                  border: "1px solid rgba(255,255,255,0.15)",
-                }}
-              >
-                <Camera size="20" />
-                Siap! 📸
-              </button>
-            )}
-          </div>
+          )}
         </div>
-      </div>
-
-      {/* Mobile: start button */}
-      {phase === "ready" && !autoRunning && (
-        <div className="md:hidden shrink-0 px-6 pb-6 relative z-10">
-          <button
-            onClick={runAutoCapture}
-            className="w-full py-4 rounded-2xl font-extrabold text-base uppercase tracking-widest transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-3"
-            style={{
-              background: `linear-gradient(135deg, ${accentColor}, ${borderColor})`,
-              color: "#fff",
-              boxShadow: `0 8px 30px ${accentColor}66`,
-            }}
-          >
-            <Camera size="20" />
-            Siap! Ambil {TOTAL_CAPTURE} Foto 📸
-          </button>
-        </div>
-      )}
-
-      <div className="relative z-10 text-center pb-4 shrink-0">
-        <p className="text-xs opacity-30" style={{ color: textColor }}>SKANIGA PORTRAIT · 5 Foto · Pilih 3 Terbaik</p>
       </div>
 
       <style>{`
-        @keyframes sk-particle-float {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-30px) rotate(10deg); }
-        }
-        @keyframes sk-flash {
+        @keyframes flash {
           0% { opacity: 1; }
           100% { opacity: 0; }
         }
-        .animate-flash { animation: sk-flash 0.5s ease-out forwards; pointer-events: none; }
-        @keyframes sk-countdown-pop {
+        @keyframes countdown-pop {
           0% { transform: scale(0.5); opacity: 0; }
-          50% { transform: scale(1.2); }
-          100% { transform: scale(1); opacity: 1; }
+          40% { transform: scale(1.1); opacity: 1; }
+          60% { transform: scale(1); opacity: 1; }
+          100% { transform: scale(0.8); opacity: 0; }
         }
-        .sk-countdown-pop { animation: sk-countdown-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .sk-countdown-text { animation: countdown-pop 1s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .text-center-last { text-align-last: center; }
       `}</style>
     </div>
   );

@@ -179,12 +179,10 @@ export default function PhotoPage({ onComplete, onBack }) {
     setTimeout(() => startCamera(selectedDeviceId), 500);
   };
 
-  // ─── SELECTING PHASE ────────────────────────────────────────────────────────
   if (phase === "selecting") {
     return (
       <div className="fixed inset-0 flex flex-col overflow-hidden select-none" style={{ background: "#0a0a0f" }}>
         
-        {/* Glow Effects */}
         <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full blur-[120px] bg-purple-600/20 pointer-events-none" />
         <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full blur-[120px] bg-blue-600/20 pointer-events-none" />
 
@@ -206,9 +204,8 @@ export default function PhotoPage({ onComplete, onBack }) {
           Pilih 3 foto terbaik untuk dicetak ke dalam strip.
         </p>
 
-        <div className="flex-1 flex flex-col items-center justify-center px-4 min-h-0 relative z-10 w-full max-w-5xl mx-auto overflow-y-auto">
+        <div className="flex-1 flex flex-col items-center justify-center px-4 min-h-0 relative z-10 w-full mx-auto overflow-y-auto">
           
-          {/* SLOTS AREA */}
           <div className="w-full flex justify-center gap-3 md:gap-6 mb-8 md:mb-12">
             {[0, 1, 2].map(slotIndex => {
               const photoIdx = selected[slotIndex];
@@ -221,7 +218,7 @@ export default function PhotoPage({ onComplete, onBack }) {
                     className="relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 shadow-xl"
                     style={{
                       width: 'clamp(90px, 22vw, 160px)',
-                      aspectRatio: '3/4',
+                      aspectRatio: '4/3',
                       background: isFilled ? 'transparent' : 'rgba(255,255,255,0.03)',
                       border: isFilled ? '2px solid #a855f7' : '2px dashed rgba(255,255,255,0.2)',
                       boxShadow: isFilled ? '0 0 20px rgba(168,85,247,0.3)' : 'none',
@@ -249,7 +246,6 @@ export default function PhotoPage({ onComplete, onBack }) {
             })}
           </div>
 
-          {/* GRID AREA */}
           <div className="w-full flex flex-col items-center">
             <p className="text-xs font-bold text-white/30 uppercase tracking-widest mb-3 px-2">Hasil Jepretan ({TOTAL_CAPTURE})</p>
             <div className="flex flex-wrap gap-3 md:gap-4 pb-4 px-2 justify-center max-w-4xl">
@@ -296,7 +292,6 @@ export default function PhotoPage({ onComplete, onBack }) {
           </div>
         </div>
 
-        {/* Bottom CTA */}
         <div className="shrink-0 px-4 pb-8 pt-4 flex flex-col items-center gap-3 relative z-10 bg-gradient-to-t from-[#0a0a0f] to-transparent">
           <button
             onClick={handleConfirmSelection}
@@ -325,7 +320,6 @@ export default function PhotoPage({ onComplete, onBack }) {
     );
   }
 
-  // ─── CAMERA PHASE ──────────────────────────────────────────────────────────
   
   return (
     <div className="fixed inset-0 flex flex-col overflow-hidden bg-black select-none">
@@ -335,7 +329,6 @@ export default function PhotoPage({ onComplete, onBack }) {
         <div className="fixed inset-0 z-50 bg-white" style={{ animation: "flash 0.5s ease-out forwards" }} />
       )}
 
-      {/* Header Premium Camera UI */}
       <div className="absolute top-0 inset-x-0 z-20 bg-gradient-to-b from-black/80 to-transparent pt-8 pb-6 px-6 md:px-12 flex items-center justify-between pointer-events-none">
         <button
           onClick={onBack}
@@ -345,7 +338,6 @@ export default function PhotoPage({ onComplete, onBack }) {
           <ArrowBigLeft size="20" />
         </button>
 
-        {/* Progress dots in center */}
         <div className="flex gap-2.5 px-4 py-2 rounded-full bg-black/40 backdrop-blur-md border border-white/10">
           {Array.from({ length: TOTAL_CAPTURE }).map((_, i) => (
             <div key={i} className="transition-all duration-500 rounded-full"
@@ -361,7 +353,6 @@ export default function PhotoPage({ onComplete, onBack }) {
         <div className="w-10 h-10" /> {/* Balancer */}
       </div>
 
-      {/* Main content - Full screen camera feel with sidebar */}
       <div className="flex-1 relative w-full h-full flex items-center justify-center bg-[#050505] p-2 md:p-6 pb-24 md:pb-6">
         <div className="flex flex-col md:flex-row items-center justify-center gap-6 w-full max-w-[1400px] h-full max-h-[85vh]">
           
@@ -442,10 +433,9 @@ export default function PhotoPage({ onComplete, onBack }) {
           )}
         </div>
 
-        {/* Sidebar thumbnails */}
         <div className="hidden md:flex flex-col gap-2 p-2 rounded-[24px] bg-white/5 border border-white/10 backdrop-blur-md shrink-0">
           {Array.from({ length: TOTAL_CAPTURE }).map((_, i) => (
-            <div key={i} className="w-[90px] h-[120px] rounded-[16px] overflow-hidden border border-white/10 flex items-center justify-center bg-black/50 relative">
+            <div key={i} className="w-[160px] h-[120px] rounded-[16px] overflow-hidden border border-white/10 flex items-center justify-center bg-black/50 relative">
               {photos[i] ? (
                 <>
                   <img src={photos[i]} className="w-full h-full object-cover transform -scale-x-100" alt="" />
@@ -454,7 +444,6 @@ export default function PhotoPage({ onComplete, onBack }) {
               ) : (
                 <Camera size="24" className="text-white/20" />
               )}
-              {/* index badge */}
               <div className="absolute top-1 right-1 bg-black/60 rounded-full w-5 h-5 flex items-center justify-center">
                 <span className="text-[10px] text-white/70 font-bold">{i + 1}</span>
               </div>

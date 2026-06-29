@@ -333,7 +333,7 @@ export default function PhotoPage({ onComplete, onBack }) {
         <button
           onClick={onBack}
           disabled={autoRunning}
-          className="pointer-events-auto flex items-center justify-center w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white transition-all hover:bg-white/20 active:scale-90 disabled:opacity-30"
+          className="pointer-events-auto flex items-center justify-center w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white transition-all hover:bg-white/20 active:scale-90 disabled:opacity-30 ml-4 mt-4"
         >
           <ArrowBigLeft size="20" />
         </button>

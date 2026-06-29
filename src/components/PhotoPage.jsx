@@ -353,8 +353,8 @@ export default function PhotoPage({ onComplete, onBack }) {
         <div className="w-10 h-10" /> {/* Balancer */}
       </div>
 
-      <div className="flex-1 relative w-full h-full flex items-center justify-center bg-[#050505] p-5 md:p-6 pb-24 md:pb-6">
-        <div className="flex flex-col md:flex-row items-center justify-center gap-6 w-full max-w-[1400px] h-full max-h-[85vh]">
+      <div className="flex-1 relative w-full h-full flex items-center justify-center bg-[#050505] p-2 md:p-6 pb-24 md:pb-6">
+        <div className="flex flex-col md:flex-row items-center justify-center gap-6 w-full max-w-[1400px] h-full max-h-[85vh] p-3">
           
           <div className="relative w-full h-full mx-auto md:rounded-[40px] overflow-hidden flex flex-1 items-center justify-center shadow-2xl">
             
@@ -433,7 +433,7 @@ export default function PhotoPage({ onComplete, onBack }) {
 
         <div className="hidden md:flex flex-col gap-2 p-2 rounded-[24px] bg-white/5 border border-white/10 backdrop-blur-md shrink-0">
           {Array.from({ length: TOTAL_CAPTURE }).map((_, i) => (
-            <div key={i} className="w-[160px] h-[120px] rounded-[16px] overflow-hidden border border-white/10 flex items-center justify-center bg-black/50 relative">
+            <div key={i} className="w-[120px] h-[80px] rounded-[16px] overflow-hidden border border-white/10 flex items-center justify-center bg-black/50 relative">
               {photos[i] ? (
                 <>
                   <img src={photos[i]} className="w-full h-full object-cover transform -scale-x-100" alt="" />

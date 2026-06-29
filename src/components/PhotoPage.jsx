@@ -354,7 +354,7 @@ export default function PhotoPage({ onComplete, onBack }) {
       </div>
 
       <div className="flex-1 relative w-full h-full flex items-center justify-center bg-[#050505] p-2 md:p-6 pb-24 md:pb-6">
-        <div className="flex flex-col md:flex-row items-center justify-center gap-6 w-full max-w-[1400px] h-full max-h-[85vh] px-5">
+        <div className="flex flex-col md:flex-row items-center justify-center gap-6 w-full max-w-[1400px] h-full max-h-[85vh]" style={{ paddingLeft: "20px", paddingRight: "20px" }}>
           
           <div className="relative w-full h-full mx-auto md:rounded-[40px] overflow-hidden flex flex-1 items-center justify-center shadow-2xl">
             

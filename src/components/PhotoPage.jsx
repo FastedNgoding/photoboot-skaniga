@@ -250,9 +250,9 @@ export default function PhotoPage({ onComplete, onBack }) {
           </div>
 
           {/* GRID AREA */}
-          <div className="w-full">
+          <div className="w-full flex flex-col items-center">
             <p className="text-xs font-bold text-white/30 uppercase tracking-widest mb-3 px-2">Hasil Jepretan ({TOTAL_CAPTURE})</p>
-            <div className="flex gap-3 md:gap-4 overflow-x-auto pb-4 px-2 snap-x snap-mandatory hide-scrollbar justify-start md:justify-center">
+            <div className="flex flex-wrap gap-3 md:gap-4 pb-4 px-2 justify-center max-w-4xl">
               {photos.map((photo, idx) => {
                 const rank = selected.indexOf(idx);
                 const isSelected = rank !== -1;
@@ -361,12 +361,13 @@ export default function PhotoPage({ onComplete, onBack }) {
         <div className="w-10 h-10" /> {/* Balancer */}
       </div>
 
-      {/* Main content - Full screen camera feel */}
-      <div className="flex-1 relative w-full h-full flex items-center justify-center bg-[#050505]">
-        
-        <div className="relative w-full max-w-[1280px] h-full max-h-[85vh] mx-auto md:rounded-[40px] overflow-hidden flex items-center justify-center">
+      {/* Main content - Full screen camera feel with sidebar */}
+      <div className="flex-1 relative w-full h-full flex items-center justify-center bg-[#050505] p-2 md:p-6 pb-24 md:pb-6">
+        <div className="flex flex-col md:flex-row items-center justify-center gap-6 w-full max-w-[1400px] h-full max-h-[85vh]">
           
-          {camError ? (
+          <div className="relative w-full h-full mx-auto md:rounded-[40px] overflow-hidden flex flex-1 items-center justify-center shadow-2xl">
+            
+            {camError ? (
             <div className="flex flex-col items-center gap-4 p-8 text-center bg-white/5 backdrop-blur-md rounded-3xl border border-white/10">
               <Camera size="56" className="text-white/40" />
               <p className="font-medium text-white/80">{camError}</p>
@@ -440,7 +441,32 @@ export default function PhotoPage({ onComplete, onBack }) {
             </div>
           )}
         </div>
+
+        {/* Sidebar thumbnails */}
+        <div className="hidden md:flex flex-col gap-2 p-2 rounded-[24px] bg-white/5 border border-white/10 backdrop-blur-md shrink-0">
+          {Array.from({ length: TOTAL_CAPTURE }).map((_, i) => (
+            <div key={i} className="w-[90px] h-[120px] rounded-[16px] overflow-hidden border border-white/10 flex items-center justify-center bg-black/50 relative">
+              {photos[i] ? (
+                <>
+                  <img src={photos[i]} className="w-full h-full object-cover transform -scale-x-100" alt="" />
+                  <div className="absolute inset-0 border-[3px] border-[#a855f7] rounded-[16px] pointer-events-none" />
+                </>
+              ) : (
+                <Camera size="24" className="text-white/20" />
+              )}
+              {/* index badge */}
+              <div className="absolute top-1 right-1 bg-black/60 rounded-full w-5 h-5 flex items-center justify-center">
+                <span className="text-[10px] text-white/70 font-bold">{i + 1}</span>
+              </div>
+            </div>
+          ))}
+          <div className="text-center pt-1 pb-1">
+            <span className="text-[10px] font-black text-[#a855f7] tracking-widest">SKANIGA</span>
+          </div>
+        </div>
+
       </div>
+    </div>
 
       <style>{`
         @keyframes flash {

@@ -31,44 +31,44 @@ import omImg3 from '../assets/om3.png'
 
 const STICKERS = {
   astronaut: [
-    { src: astronotImg1, style: { top: 0, left: -8, width: 80, height: 80 } },
-    { src: astronotImg2, style: { top: '45%', right: -12, width: 75, height: 75 } },
-    { src: planetImg, style: { bottom: '12%', left: -5, width: 70, height: 45 } },
+    { src: astronotImg1, style: { top: 5, left: -20, width: 140, height: 140 } },
+    { src: astronotImg2, style: { top: 330, left: 468, width: 140, height: 140 } },
+    { src: planetImg, style: { top: 700, left: 8, width: 130, height: 80 } },
   ],
   hellokitty: [
-    { src: hkImg1, style: { top: 0, left: -5, width: 75, height: 75 } },
-    { src: hkImg2, style: { top: '45%', right: -10, width: 75, height: 75 } },
-    { src: hkImg3, style: { bottom: '12%', left: 0, width: 65, height: 55 } },
+    { src: hkImg1, style: { top: 8, left: 13, width: 140, height: 140 } },
+    { src: hkImg2, style: { top: 330, left: 468, width: 140, height: 140 } },
+    { src: hkImg3, style: { top: 700, left: 15, width: 120, height: 100 } },
   ],
   starwars: [
-    { src: swImg1, style: { top: 5, left: 0, width: 85, height: 45 } },
-    { src: swImg2, style: { top: '45%', right: -10, width: 70, height: 70 } },
-    { src: swImg3, style: { bottom: '10%', left: -2, width: 65, height: 72 } },
+    { src: swImg1, style: { top: 25, left: 17, width: 160, height: 80 } },
+    { src: swImg2, style: { top: 330, left: 468, width: 140, height: 140 } },
+    { src: swImg3, style: { top: 670, left: 15, width: 120, height: 135 } },
   ],
   lotso: [
-    { src: lImg1, style: { top: -5, left: -5, width: 70, height: 70 } },
-    { src: lImg2, style: { top: '50%', right: -5, width: 55, height: 55 } },
-    { src: lImg3, style: { bottom: '10%', left: -5, width: 65, height: 72 } },
+    { src: lImg1, style: { top: -5, left: 5, width: 130, height: 130 } },
+    { src: lImg2, style: { top: 378, left: 468, width: 100, height: 100 } },
+    { src: lImg3, style: { top: 680, left: 5, width: 120, height: 135 } },
   ],
   dragonball: [
-    { src: dbImg1, style: { top: 0, left: -5, width: 75, height: 75 } },
-    { src: dbImg2, style: { top: '45%', right: -10, width: 70, height: 70 } },
-    { src: dbImg3, style: { bottom: '10%', left: -3, width: 70, height: 70 } },
+    { src: dbImg1, style: { top: 5, left: -10, width: 140, height: 140 } },
+    { src: dbImg2, style: { top: 330, left: 468, width: 130, height: 130 } },
+    { src: dbImg3, style: { top: 690, left: 5, width: 130, height: 130 } },
   ],
   onepiece: [
-    { src: opImg1, style: { top: 0, left: -5, width: 75, height: 75 } },
-    { src: opImg2, style: { top: '45%', right: -10, width: 75, height: 75 } },
-    { src: opImg3, style: { bottom: '10%', left: -3, width: 55, height: 70 } },
+    { src: opImg1, style: { top: 5, left: -10, width: 140, height: 140 } },
+    { src: opImg2, style: { top: 330, left: 468, width: 140, height: 140 } },
+    { src: opImg3, style: { top: 690, left: 5, width: 100, height: 130 } },
   ],
   sakura: [
-    { src: saImg1, style: { top: 2, left: 0, width: 55, height: 75 } },
-    { src: saImg2, style: { top: '45%', right: -8, width: 65, height: 75 } },
-    { src: saImg3, style: { bottom: '10%', left: -5, width: 70, height: 70 } },
+    { src: saImg1, style: { top: 12, left: 10, width: 100, height: 140 } },
+    { src: saImg2, style: { top: 330, left: 468, width: 120, height: 140 } },
+    { src: saImg3, style: { top: 690, left: 0, width: 130, height: 130 } },
   ],
   omnom: [
-    { src: omImg1, style: { top: 2, left: 0, width: 70, height: 75 } },
-    { src: omImg2, style: { top: '45%', right: -8, width: 65, height: 65 } },
-    { src: omImg3, style: { bottom: '10%', left: -5, width: 70, height: 70 } },
+    { src: omImg1, style: { top: 12, left: 10, width: 130, height: 140 } },
+    { src: omImg2, style: { top: 330, left: 468, width: 120, height: 120 } },
+    { src: omImg3, style: { top: 690, left: 0, width: 130, height: 130 } },
   ],
 }
 
@@ -85,76 +85,78 @@ function StripPreview({ template, photos, height }) {
   const dt = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
   const bf = template.font?.includes('Bebas') ? '"Bebas Neue", sans-serif' : '"Playfair Display", serif'
 
+  // Final rendering dimensions are 600x1198
+  const ORIG_W = 600;
+  const ORIG_H = 1198;
+  const scale = height / ORIG_H;
+  const renderW = ORIG_W * scale;
+  
   return (
     <div
-      className="relative overflow-hidden rounded-2xl select-none"
+      className="relative select-none rounded-[16px] overflow-hidden"
       style={{
-        height,
-        width: height * 0.52, // aspect ratio ~600:1150
-        background: `linear-gradient(180deg, ${c1} 0%, ${c2} 50%, ${c1} 100%)`,
-        boxShadow: `0 0 0 3px ${template.border}, 0 20px 60px ${template.border}44`,
+        width: renderW,
+        height: height,
+        boxShadow: `0 0 0 2px ${template.border}, 0 20px 60px ${template.border}44`,
+        background: template.border // fallback for rounded corners clipping
       }}
     >
-      {/* Inner border */}
-      <div className="absolute inset-[6px] border rounded-xl pointer-events-none" style={{ borderColor: template.border + '33', borderWidth: 1 }} />
-
-      {/* 3 photo slots */}
-      <div className="flex flex-col gap-[3%] p-[6%] pb-0" style={{ height: '78%' }}>
-        {[0, 1, 2].map(i => (
-          <div key={i} className="flex-1 rounded-md overflow-hidden relative"
-            style={{ border: `2px solid ${template.border}77` }}>
-            {photos[i] ? (
-              <img src={photos[i]} alt="" className="w-full h-full object-cover" style={{ transform: 'scaleX(-1)' }} />
-            ) : (
-              <div className="w-full h-full" style={{ background: template.border + '11' }} />
-            )}
-            {/* Numbering badge */}
-            <div className="absolute bottom-0 right-0 px-1.5 py-0.5 text-white font-bold"
-              style={{ fontSize: 7, background: 'rgba(0,0,0,0.5)' }}>
-              {i + 1}/3
+      <div 
+        className="absolute top-0 left-0 bg-white"
+        style={{
+          width: ORIG_W,
+          height: ORIG_H,
+          transform: `scale(${scale})`,
+          transformOrigin: 'top left',
+          background: `linear-gradient(180deg, ${c1} 0%, ${c2} 50%, ${c1} 100%)`,
+        }}
+      >
+        {/* Outer and Inner borders from FinalPage */}
+        <div className="absolute border" style={{ top: 0, left: 0, width: 600, height: 1198, borderWidth: 8, borderColor: template.border }} />
+        <div className="absolute border" style={{ top: 12, left: 12, width: 576, height: 1174, borderWidth: 2, borderColor: template.border + '33' }} />
+        
+        {/* Photos */}
+        {[0, 1, 2].map(i => {
+          const x = 36;
+          const y = 36 + i * (320 + 18);
+          const pw = 528;
+          const ph = 320;
+          return (
+            <div key={i} className="absolute overflow-hidden" style={{ top: y, left: x, width: pw, height: ph, background: template.border + '11' }}>
+              {photos[i] && <img src={photos[i]} alt="" className="w-full h-full object-cover" style={{ transform: 'scaleX(-1)' }} />}
+              <div className="absolute border" style={{ inset: 0, borderWidth: 4, borderColor: template.border + '77' }} />
+              
+              {/* Badge */}
+              <div className="absolute" style={{ bottom: 12, right: 12, width: 42, height: 24, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ color: '#fff', fontSize: 12, fontWeight: 'bold', fontFamily: '"Urbanist", sans-serif' }}>{i + 1}/3</span>
+              </div>
             </div>
-          </div>
+          )
+        })}
+
+        {/* Footer text */}
+        <div className="absolute w-full text-center" style={{ top: 1068 }}>
+          <p style={{ color: template.textColor, fontFamily: bf, fontSize: 44, fontWeight: 'bold', textShadow: `0 0 10px ${template.border}66` }}>
+            SKANIGA PORTRAIT
+          </p>
+          <div style={{ position: 'absolute', top: 52, left: 220, width: 160, height: 1.5, background: template.border + '55' }} />
+          <p style={{ position: 'absolute', top: 74, width: '100%', color: template.textColor + 'bb', fontSize: 16, fontFamily: '"Urbanist", sans-serif' }}>
+            {template.overlayText}
+          </p>
+          <p style={{ position: 'absolute', top: 96, width: '100%', color: template.textColor + '99', fontSize: 13, fontFamily: '"Urbanist", sans-serif' }}>
+            {dt}
+          </p>
+          <p style={{ position: 'absolute', top: 116, width: '100%', color: template.border + 'cc', fontSize: 12, fontWeight: 'bold', fontFamily: '"Urbanist", sans-serif', textTransform: 'uppercase', letterSpacing: 1 }}>
+            {template.name}
+          </p>
+        </div>
+
+        {/* Stickers perfectly positioned */}
+        {stickers.map((s, i) => (
+          <img key={i} src={s.src} alt="" className="absolute pointer-events-none select-none"
+            style={{ top: s.style.top, left: s.style.left, width: s.style.width, height: s.style.height, objectFit: 'contain', zIndex: 10 }} />
         ))}
       </div>
-
-      {/* Footer text */}
-      <div className="text-center px-2" style={{ height: '22%', paddingTop: '3%' }}>
-        <p className="font-bold tracking-wider leading-tight"
-          style={{ color: template.textColor, fontFamily: bf, fontSize: Math.max(height * 0.032, 9), textShadow: `0 1px 6px ${template.border}66` }}>
-          SKANIGA PORTRAIT
-        </p>
-        <div className="mx-auto rounded-full my-0.5" style={{ width: '35%', height: 1, background: template.border + '55' }} />
-        <p style={{ color: template.textColor + 'bb', fontSize: Math.max(height * 0.02, 7), fontFamily: '"Urbanist", sans-serif' }}>
-          {template.overlayText}
-        </p>
-        <p style={{ color: template.textColor + '99', fontSize: Math.max(height * 0.017, 6), fontFamily: '"Urbanist", sans-serif', marginTop: 2 }}>
-          {dt}
-        </p>
-        <p className="font-bold uppercase tracking-widest"
-          style={{ color: template.border + 'cc', fontSize: Math.max(height * 0.016, 6), marginTop: 1 }}>
-          {template.name}
-        </p>
-      </div>
-
-      {/* Stickers */}
-      {stickers.map((s, i) => (
-        <img key={i} src={s.src} alt="" className="absolute pointer-events-none select-none"
-          style={{ ...s.style, objectFit: 'contain', zIndex: 5 }} />
-      ))}
-
-      {/* Decorative particles */}
-      {(template.decorations || []).slice(0, 4).map((deco, i) => (
-        <div key={`d${i}`} className="absolute pointer-events-none select-none opacity-25"
-          style={{
-            fontSize: Math.max(height * 0.03, 10),
-            left: i % 2 === 0 ? `${10 + i * 8}%` : undefined,
-            right: i % 2 !== 0 ? `${8 + i * 6}%` : undefined,
-            top: `${15 + i * 22}%`,
-            animation: `float ${3 + i * 0.5}s ease-in-out ${i * 0.3}s infinite`,
-          }}>
-          {deco}
-        </div>
-      ))}
     </div>
   )
 }
@@ -181,9 +183,9 @@ export default function TemplatePage({ onSelect, onBack, selectedPhotos }) {
   const { width, height } = dimensions
   const isMobile = width < 640
 
-  // Strip dimensions closer to real size (600x1200 ratio)
-  const stripH = isMobile ? Math.min(height * 0.65, 480) : Math.min(height * 0.82, 700)
-  const stripW = stripH * 0.50
+  // Strip dimensions - scaled to fit screen but with 600x1198 native ratio
+  const stripH = isMobile ? Math.min(height * 0.65, 480) : Math.min(height * 0.72, 650)
+  const stripW = stripH * (600 / 1198)
   const gap = isMobile ? 24 : 40
 
   const currentTemplate = TEMPLATES[activeIndex] || TEMPLATES[0]
@@ -284,7 +286,7 @@ export default function TemplatePage({ onSelect, onBack, selectedPhotos }) {
               animate={{ scale: 1, opacity: 1 }}
               transition={{ type: 'spring', stiffness: 200, damping: 20, delay: 0.15 }}
             >
-              <StripPreview template={TEMPLATES[activeIndex]} photos={selectedPhotos || []} height={Math.min(stripH * 1.1, 500)} />
+              <StripPreview template={TEMPLATES[activeIndex]} photos={selectedPhotos || []} height={Math.min(stripH * 1.1, height * 0.9)} />
 
               {/* Check badge */}
               <motion.div
@@ -495,11 +497,6 @@ export default function TemplatePage({ onSelect, onBack, selectedPhotos }) {
             <Check size="20" />
             <span>Simpan</span>
           </motion.button>
-
-          <motion.p className="text-[10px] font-bold uppercase tracking-widest opacity-40 mt-2"
-            animate={{ color: subtitleColor }}>
-            {activeIndex + 1} / {TEMPLATES.length} · GESER UNTUK PILIH
-          </motion.p>
         </div>
       </div>
     </div>

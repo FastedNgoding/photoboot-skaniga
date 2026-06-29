@@ -247,7 +247,7 @@ export default function PhotoPage({ onComplete, onBack }) {
           </div>
 
           <div className="w-full flex flex-col items-center">
-            <p className="text-xs font-bold text-white/30 uppercase tracking-widest mb-3 px-2">Hasil Jepretan ({TOTAL_CAPTURE})</p>
+            <p className="text-xs font-bold text-white/30 uppercase tracking-widest mb-3 px-2" style={{ marginBottom: "10px", marginTop: "10px" }}>Hasil Jepretan ({TOTAL_CAPTURE})</p>
             <div className="flex flex-wrap gap-3 md:gap-4 pb-4 px-2 justify-center max-w-4xl">
               {photos.map((photo, idx) => {
                 const rank = selected.indexOf(idx);
@@ -396,7 +396,6 @@ export default function PhotoPage({ onComplete, onBack }) {
                 </div>
               )}
 
-              {/* Status info */}
               <div className="absolute bottom-8 inset-x-0 flex flex-col items-center gap-4 pointer-events-none">
                 
                 {/* Camera selector (Desktop only basically) */}
@@ -411,7 +410,6 @@ export default function PhotoPage({ onComplete, onBack }) {
                   </select>
                 )}
 
-                {/* Shutter Button area */}
                 {phase === "ready" && !autoRunning && (
                   <button
                     onClick={runAutoCapture}

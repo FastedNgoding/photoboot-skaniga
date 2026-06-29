@@ -531,7 +531,7 @@ function drawDeco(c, t, W, H) {
   }
 }
 
-function buildStrip(photos, template) {
+function buildStrip(photos, template, config) {
   return new Promise((resolve, reject) => {
     const cv = document.createElement("canvas");
     cv.width = W;
@@ -673,7 +673,7 @@ function buildStrip(photos, template) {
         c.textAlign = "center";
         c.shadowColor = template.border + "66";
         c.shadowBlur = 10;
-        c.fillText("SKANIGA PORTRAIT", W / 2, fy + 12);
+        c.fillText(config?.watermarkText || "SKANIGA PORTRAIT", W / 2, fy + 12);
         c.shadowBlur = 0;
         c.strokeStyle = template.border + "55";
         c.lineWidth = 1.5;
@@ -753,7 +753,7 @@ const CSS = `
 .sk-bs { animation: sk-bs 2s ease-in-out infinite }
 `;
 
-export default function FinalPage({ photos, template, onRestart }) {
+export default function FinalPage({ photos, template, onRestart, config }) {
   const [stripUrl, setStripUrl] = useState(null);
   const [qrUrl, setQrUrl] = useState(null);
   const [status, setStatus] = useState("idle");
@@ -798,7 +798,7 @@ export default function FinalPage({ photos, template, onRestart }) {
     try {
       setStatus("building");
       setErr(null);
-      const strip = await buildStrip(photos, template);
+      const strip = await buildStrip(photos, template, config);
       setStripUrl(strip);
       setStatus("uploading");
       let url = strip,

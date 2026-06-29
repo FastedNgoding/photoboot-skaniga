@@ -4,12 +4,12 @@ import TemplatePage from './components/TemplatePage'
 import PhotoPage from './components/PhotoPage'
 import FinalPage from './components/FinalPage'
 import MusicControl from './components/MusicControl'
+import FullscreenControl from './components/FullscreenControl'
 import SettingsPage from './components/SettingsPage'
 import LockScreen from './components/LockScreen'
 import { useMusicPlayer } from './hooks/useMusicPlayer'
 
 export default function App() {
-  // Alur baru: landing → photo → template → final
   const [page, setPage] = useState('landing')
   const [selectedTemplate, setSelectedTemplate] = useState(null)
   const [capturedPhotos, setCapturedPhotos] = useState([]) // all photos (5)
@@ -19,9 +19,24 @@ export default function App() {
   const [appConfig, setAppConfig] = useState(() => {
     try {
       const saved = localStorage.getItem('skaniga-settings')
-      return saved ? JSON.parse(saved) : { mode: 'bebas', pin: '1234', duration: 2 }
+      const parsed = saved ? JSON.parse(saved) : {}
+      return {
+        mode: parsed.mode || 'bebas',
+        pin: parsed.pin || '1234',
+        duration: parsed.duration || 2,
+        controlButtonMode: parsed.controlButtonMode || 'music',
+        countdownDuration: parsed.countdownDuration || 3,
+        watermarkText: parsed.watermarkText || 'SKANIGA PORTRAIT'
+      }
     } catch {
-      return { mode: 'bebas', pin: '1234', duration: 2 }
+      return {
+        mode: 'bebas',
+        pin: '1234',
+        duration: 2,
+        controlButtonMode: 'music',
+        countdownDuration: 3,
+        watermarkText: 'SKANIGA PORTRAIT'
+      }
     }
   })
 
@@ -59,8 +74,10 @@ export default function App() {
         localStorage.setItem('skaniga-session-end', newEnd.toString())
       }
     }
-    tryAutoPlay()
-    setPage('photo') // Langsung ke foto dulu
+    if (appConfig.controlButtonMode === 'music') {
+      tryAutoPlay()
+    }
+    setPage('photo')
   }
 
   // PhotoPage selesai: user sudah pilih 3 foto terbaik → ke template
@@ -110,6 +127,7 @@ export default function App() {
           {/* Foto dulu — tanpa template */}
           {page === 'photo' && (
             <PhotoPage
+              config={appConfig}
               onComplete={handlePhotosComplete}
               onBack={() => setPage('landing')}
             />
@@ -118,6 +136,7 @@ export default function App() {
           {/* Setelah pilih 3 foto → pilih template, dengan preview foto */}
           {page === 'template' && chosenPhotos.length === 3 && (
             <TemplatePage
+              config={appConfig}
               selectedPhotos={chosenPhotos}
               onSelect={handleTemplateSelect}
               onBack={() => setPage('photo')}
@@ -127,6 +146,7 @@ export default function App() {
           {/* Final: QR + download */}
           {page === 'final' && selectedTemplate && chosenPhotos.length > 0 && (
             <FinalPage
+              config={appConfig}
               photos={chosenPhotos}
               template={selectedTemplate}
               onRestart={handleRestart}
@@ -142,13 +162,17 @@ export default function App() {
             </div>
           )}
 
-          <MusicControl
-            isPlaying={isPlaying}
-            toggle={toggle}
-            volume={volume}
-            setVolume={setVolume}
-            tracks={tracks}
-          />
+          {appConfig.controlButtonMode === 'fullscreen' ? (
+            <FullscreenControl />
+          ) : (
+            <MusicControl
+              isPlaying={isPlaying}
+              toggle={toggle}
+              volume={volume}
+              setVolume={setVolume}
+              tracks={tracks}
+            />
+          )}
         </>
       )}
     </div>

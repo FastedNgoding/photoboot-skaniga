@@ -12,7 +12,7 @@ import {
 const TOTAL_CAPTURE = 5;
 const PICK_COUNT = 3;
 
-export default function PhotoPage({ onComplete, onBack }) {
+export default function PhotoPage({ onComplete, onBack, config }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
@@ -108,7 +108,8 @@ export default function PhotoPage({ onComplete, onBack }) {
   }, []);
 
   const doCountdownAndCapture = useCallback(async () => {
-    for (let i = 3; i >= 1; i--) {
+    const cDuration = config?.countdownDuration || 3;
+    for (let i = cDuration; i >= 1; i--) {
       setCountdown(i);
       await new Promise((r) => setTimeout(r, 1000));
     }
@@ -123,7 +124,7 @@ export default function PhotoPage({ onComplete, onBack }) {
     setCountdown(null);
     await new Promise((r) => setTimeout(r, 1200));
     return dataUrl;
-  }, [capturePhoto]);
+  }, [capturePhoto, config?.countdownDuration]);
 
   const runAutoCapture = useCallback(async () => {
     if (autoRunning) return;

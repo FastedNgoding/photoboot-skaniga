@@ -79,7 +79,7 @@ function extractColors(gradStr) {
 
 // ─── StripPreview component ─────────────────────────────────────────────────
 // Renders a mini version of the actual photo strip with real photos + stickers
-function StripPreview({ template, photos, height }) {
+function StripPreview({ template, photos, height, config }) {
   const [c1, c2] = extractColors(template.stripBg)
   const stickers = STICKERS[template.id] || []
   const dt = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -137,7 +137,7 @@ function StripPreview({ template, photos, height }) {
         {/* Footer text */}
         <div className="absolute w-full text-center" style={{ top: 1068 }}>
           <p style={{ color: template.textColor, fontFamily: bf, fontSize: 44, fontWeight: 'bold', textShadow: `0 0 10px ${template.border}66` }}>
-            SKANIGA PORTRAIT
+            {config?.watermarkText || 'SKANIGA PORTRAIT'}
           </p>
           <div style={{ position: 'absolute', top: 52, left: 220, width: 160, height: 1.5, background: template.border + '55' }} />
           <p style={{ position: 'absolute', top: 74, width: '100%', color: template.textColor + 'bb', fontSize: 16, fontFamily: '"Urbanist", sans-serif' }}>
@@ -162,7 +162,7 @@ function StripPreview({ template, photos, height }) {
 }
 
 // ─── Main Component ────────────────────────────────────────────────────────────
-export default function TemplatePage({ onSelect, onBack, selectedPhotos }) {
+export default function TemplatePage({ onSelect, onBack, selectedPhotos, config }) {
   const [activeIndex, setActiveIndex] = useState(0)
   const [saving, setSaving] = useState(false)
   const [savedId, setSavedId] = useState(null)
@@ -286,7 +286,7 @@ export default function TemplatePage({ onSelect, onBack, selectedPhotos }) {
               animate={{ scale: 1, opacity: 1 }}
               transition={{ type: 'spring', stiffness: 200, damping: 20, delay: 0.15 }}
             >
-              <StripPreview template={TEMPLATES[activeIndex]} photos={selectedPhotos || []} height={Math.min(stripH * 1.1, height * 0.9)} />
+              <StripPreview template={TEMPLATES[activeIndex]} photos={selectedPhotos || []} height={Math.min(stripH * 1.1, height * 0.9)} config={config} />
 
               {/* Check badge */}
               <motion.div
@@ -427,7 +427,7 @@ export default function TemplatePage({ onSelect, onBack, selectedPhotos }) {
                     transition={{ type: 'spring', stiffness: 250, damping: 28, mass: 0.9 }}
                     style={{ transformStyle: 'preserve-3d' }}
                   >
-                    <StripPreview template={tmpl} photos={selectedPhotos || []} height={stripH} />
+                    <StripPreview template={tmpl} photos={selectedPhotos || []} height={stripH} config={config} />
                   </motion.div>
                 )
               })}

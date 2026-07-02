@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import QRCode from "qrcode";
-import { ArrowInDownSquareHalf, Copy, Home } from "@boxicons/react";
+import { ArrowInDownSquareHalf, Copy, Home, Camera } from "@boxicons/react";
+import { uploadStripFree, uploadStripPaid, getPaidStripUrls, getPaidImgurIds, createImgurAlbum, buildCollage } from "../utils/uploadService";
 
 import astronotImg1 from "../assets/astronot1.png";
 import astronotImg2 from "../assets/astronot2.png";
@@ -531,7 +532,7 @@ function drawDeco(c, t, W, H) {
   }
 }
 
-function buildStrip(photos, template, config) {
+export function buildStrip(photos, template, config) {
   return new Promise((resolve, reject) => {
     const cv = document.createElement("canvas");
     cv.width = W;
@@ -702,41 +703,8 @@ function buildStrip(photos, template, config) {
   });
 }
 
-async function upImgBB(b64) {
-  try {
-    const b = b64.replace(/^data:image\/jpeg;base64,/, "");
-    const fd = new FormData();
-    fd.append("image", b);
-    const r = await fetch(
-      `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,
-      { method: "POST", body: fd },
-    );
-    const j = await r.json();
-    if (j.data && j.data.url)
-      return { ok: true, url: "https://ibb.co.com/" + j.data.id };
-    return { ok: false, err: j.error?.message || "Fail" };
-  } catch (e) {
-    return { ok: false, err: e.message };
-  }
-}
 
-async function upCloud(b64) {
-  try {
-    const fd = new FormData();
-    fd.append("file", b64);
-    fd.append("upload_preset", CLOUDINARY_PRESET);
-    fd.append("folder", "skaniga-portrait");
-    const r = await fetch(
-      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`,
-      { method: "POST", body: fd },
-    );
-    const d = await r.json();
-    if (d.secure_url) return { ok: true, url: d.secure_url };
-    return { ok: false, err: d.error?.message || "Fail" };
-  } catch (e) {
-    return { ok: false, err: e.message };
-  }
-}
+
 
 const CSS = `
 @keyframes sk-fl { 0%,100%{transform:translateY(0) rotate(0)} 50%{transform:translateY(-20px) rotate(5deg)} }
@@ -753,7 +721,7 @@ const CSS = `
 .sk-bs { animation: sk-bs 2s ease-in-out infinite }
 `;
 
-export default function FinalPage({ photos, template, onRestart, config }) {
+export default function FinalPage({ photos, template, onRestart, config, isExpired }) {
   const [stripUrl, setStripUrl] = useState(null);
   const [qrUrl, setQrUrl] = useState(null);
   const [status, setStatus] = useState("idle");
@@ -796,25 +764,90 @@ export default function FinalPage({ photos, template, onRestart, config }) {
 
   const buildAndUpload = useCallback(async () => {
     try {
+      if (isExpired || config.mode === 'berbayar') {
+        const urls = getPaidStripUrls()
+        if (!urls.length) {
+          setErr("Tidak ada foto yang tersimpan.")
+          setStatus("error")
+          return
+        }
+
+        // 1. Always build the collage first to display it on screen
+        setStatus("building")
+        setErr(null)
+        const collageB64 = await buildCollage(urls, config.watermarkText)
+        setStripUrl(collageB64)
+
+        // 2. Try creating an Imgur Album first if we have Imgur IDs
+        const imgurIds = getPaidImgurIds()
+        if (imgurIds.length > 0 && config.imgurClientId) {
+          setStatus("uploading")
+          const albumRes = await createImgurAlbum(imgurIds, config.imgurClientId)
+          if (albumRes.ok) {
+            setShareUrl(albumRes.url)
+            setStatus("generating-qr")
+            const q = await QRCode.toDataURL(albumRes.url, {
+              width: 260, margin: 2, errorCorrectionLevel: "H",
+              color: { dark: "#C2A56D", light: "#ffffff" }
+            })
+            setQrUrl(q)
+            setStatus("done")
+            return
+          }
+        }
+
+        // 3. Fallback 1: Skaniga's Own Share Page using successfully uploaded individual strip URLs
+        const validUrls = urls.filter(u => u && u.startsWith("http"))
+        if (validUrls.length > 0) {
+          const sharePageUrl = window.location.origin + "/share?images=" + encodeURIComponent(validUrls.join(","))
+          setShareUrl(sharePageUrl)
+          setStatus("generating-qr")
+          const q = await QRCode.toDataURL(sharePageUrl, {
+            width: 260, margin: 2, errorCorrectionLevel: "H",
+            color: { dark: "#C2A56D", light: "#ffffff" }
+          })
+          setQrUrl(q)
+          setStatus("done")
+          return
+        }
+
+        // 4. Fallback 2: Upload the collage image if no individual image URLs were successfully uploaded
+        setStatus("uploading")
+        const res = await uploadStripPaid(collageB64, config)
+        let finalUrl = collageB64
+        if (res.ok) {
+          finalUrl = res.url
+        } else {
+          setErr("Upload gagal, gunakan tombol Download")
+        }
+        setShareUrl(finalUrl)
+        setStatus("generating-qr")
+        const qd = finalUrl.startsWith("data:")
+          ? `https://skaniga.app/collage/${Date.now()}`
+          : finalUrl
+        const q = await QRCode.toDataURL(qd, {
+          width: 260, margin: 2, errorCorrectionLevel: "H",
+          color: { dark: "#C2A56D", light: "#ffffff" }
+        })
+        setQrUrl(q)
+        setStatus("done")
+        return
+      }
+
       setStatus("building");
       setErr(null);
       const strip = await buildStrip(photos, template, config);
       setStripUrl(strip);
       setStatus("uploading");
-      let url = strip,
-        ok = false;
-      const r1 = await upImgBB(strip);
-      if (r1.ok) {
-        url = r1.url;
-        ok = true;
+
+      const res = await uploadStripFree(strip, config);
+      let url = strip;
+      if (res.ok) {
+        url = res.url;
       } else {
-        const r2 = await upCloud(strip);
-        if (r2.ok) {
-          url = r2.url;
-          ok = true;
-        }
+        setErr("Upload cloud gagal, mode offline aktif");
       }
-      if (!ok) setErr("Upload cloud gagal, mode offline aktif");
+
       setShareUrl(url);
       setStatus("generating-qr");
       const qd = url.startsWith("data:")
@@ -824,22 +857,13 @@ export default function FinalPage({ photos, template, onRestart, config }) {
         width: 260,
         margin: 2,
         color: {
-          dark:
-            template.id === "starwars"
-              ? "#FFD700"
-              : template.id === "astronaut"
-                ? "#4488ff"
-                : template.id === "lotso"
-                  ? "#D2691E"
-                  : template.id === "dragonball"
-                    ? "#ffa000"
-                    : template.id === "onepiece"
-                      ? "#e53935"
-                      : template.id === "sakura"
-                        ? "#e91e63"
-                        : template.id === "retrogame"
-                          ? "#00e676"
-                          : "#ff6b9d",
+          dark: template?.id === "starwars" ? "#FFD700" :
+                template?.id === "astronaut" ? "#4488ff" :
+                template?.id === "lotso" ? "#D2691E" :
+                template?.id === "dragonball" ? "#ffa000" :
+                template?.id === "onepiece" ? "#e53935" :
+                template?.id === "sakura" ? "#e91e63" :
+                template?.id === "retrogame" ? "#00e676" : "#ff6b9d",
           light: "#ffffff",
         },
         errorCorrectionLevel: "H",
@@ -851,18 +875,14 @@ export default function FinalPage({ photos, template, onRestart, config }) {
       setErr("Error: " + e.message);
       setStatus("error");
     }
-  }, [photos, template]);
+  }, [photos, template, config, isExpired]);
 
   useEffect(() => {
     let active = true;
     setTimeout(() => {
-      if (active) {
-        buildAndUpload();
-      }
+      if (active) buildAndUpload();
     }, 0);
-    return () => {
-      active = false;
-    };
+    return () => { active = false; };
   }, [buildAndUpload]);
 
   const download = () => {
@@ -890,13 +910,24 @@ export default function FinalPage({ photos, template, onRestart, config }) {
 
   const handleRestart = () => {
     exitFull();
+    localStorage.removeItem('skaniga-imgur-hash')
+    localStorage.removeItem('skaniga-imgur-url')
     onRestart();
+  };
+
+  const activeTemplate = template || {
+    bg: '#2C3947',
+    border: '#C2A56D',
+    textColor: '#ffffff',
+    font: '"Urbanist", sans-serif',
+    emoji: '📸',
+    name: 'ALBUM FOTO'
   };
 
   return (
     <div
       className="fixed inset-0 flex flex-col overflow-hidden"
-      style={{ background: template.bg }}
+      style={{ background: activeTemplate.bg }}
     >
       <div
         className="absolute inset-0 opacity-10"
@@ -919,7 +950,7 @@ export default function FinalPage({ photos, template, onRestart, config }) {
               fontSize: `${20 + i * 8}px`,
             }}
           >
-            {template.emoji}
+            {activeTemplate.emoji}
           </div>
         ))}
       </div>
@@ -929,7 +960,7 @@ export default function FinalPage({ photos, template, onRestart, config }) {
             className="rounded-2xl px-6 py-3 shadow-2xl backdrop-blur-md"
             style={{
               background: "rgba(0,0,0,0.85)",
-              border: `1px solid ${template.border}44`,
+              border: `1px solid ${activeTemplate.border}44`,
             }}
           >
             <p className="text-white font-medium text-sm flex items-center gap-2">
@@ -962,16 +993,16 @@ export default function FinalPage({ photos, template, onRestart, config }) {
           <span
             className="text-2xl font-bold tracking-[0.2em]"
             style={{
-              color: template.textColor,
-              fontFamily: template.font,
-              textShadow: `0 2px 12px ${template.border}44`,
+              color: activeTemplate.textColor,
+              fontFamily: activeTemplate.font,
+              textShadow: `0 2px 12px ${activeTemplate.border}44`,
             }}
           >
-            HASIL FOTO
+            {isExpired ? "WAKTU HABIS!" : "HASIL FOTO"}
           </span>
           <div
             className="h-0.5 w-20 mx-auto mt-1.5 rounded-full"
-            style={{ background: template.border }}
+            style={{ background: activeTemplate.border }}
           />
         </div>
       </div>
@@ -981,108 +1012,110 @@ export default function FinalPage({ photos, template, onRestart, config }) {
         </div>
       )}
       <div className="flex-1 flex flex-col lg:flex-row items-center justify-center gap-5 px-6 pb-3 relative z-10 min-h-0 overflow-y-auto">
-        <div className="flex flex-col items-center gap-3 shrink-0">
-          <div className="relative">
-            {stripUrl ? (
-              <div
-                className="rounded-2xl overflow-hidden shadow-2xl sk-fi"
-                style={{
-                  border: `4px solid ${template.border}`,
-                  boxShadow: `0 25px 70px ${template.border}33, 0 0 0 1px ${template.border}22`,
-                }}
-              >
-                <img
-                  src={stripUrl}
-                  alt="Photo strip"
-                  className="w-full h-auto max-w-full object-contain"
-                  ref={stripRef}
+        {(!isExpired || stripUrl) && (
+          <div className="flex flex-col items-center gap-3 shrink-0">
+            <div className="relative">
+              {stripUrl ? (
+                <div
+                  className="rounded-2xl overflow-hidden shadow-2xl sk-fi"
                   style={{
-                    maxWidth: "min(420px, 80vw)",
-                    maxHeight: "60vh",
+                    border: `4px solid ${activeTemplate.border}`,
+                    boxShadow: `0 25px 70px ${activeTemplate.border}33, 0 0 0 1px ${activeTemplate.border}22`,
                   }}
-                />
-              </div>
-            ) : (
-              <div
-                className="w-64 lg:w-80 rounded-2xl flex items-center justify-center animate-pulse"
-                style={{
-                  height: 520,
-                  background: "rgba(255,255,255,0.08)",
-                  border: `2px dashed ${template.border}66`,
-                }}
-              >
-                <div className="text-center">
-                  <div className="text-5xl mb-4 sk-ss">⚙️</div>
-                  <p
-                    className="font-medium text-sm"
-                    style={{ color: template.textColor }}
-                  >
-                    Memproses foto...
-                  </p>
+                >
+                  <img
+                    src={stripUrl}
+                    alt="Photo strip"
+                    className="w-full h-auto max-w-full object-contain"
+                    ref={stripRef}
+                    style={{
+                      maxWidth: "min(420px, 80vw)",
+                      maxHeight: "60vh",
+                    }}
+                  />
                 </div>
+              ) : (
+                <div
+                  className="w-64 lg:w-80 rounded-2xl flex items-center justify-center animate-pulse"
+                  style={{
+                    height: 520,
+                    background: "rgba(255,255,255,0.08)",
+                    border: `2px dashed ${activeTemplate.border}66`,
+                  }}
+                >
+                  <div className="text-center">
+                    <div className="text-5xl mb-4 sk-ss">⚙️</div>
+                    <p
+                      className="font-medium text-sm"
+                      style={{ color: activeTemplate.textColor }}
+                    >
+                      Memproses foto...
+                    </p>
+                  </div>
+                </div>
+              )}
+              <div
+                className="absolute -top-3 -right-3 rounded-full px-4 py-1.5 text-xs font-bold shadow-lg"
+                style={{ background: activeTemplate.border, color: "#fff" }}
+              >
+                {activeTemplate.emoji} {activeTemplate.name}
               </div>
-            )}
-            <div
-              className="absolute -top-3 -right-3 rounded-full px-4 py-1.5 text-xs font-bold shadow-lg"
-              style={{ background: template.border, color: "#fff" }}
-            >
-              {template.emoji} {template.name}
             </div>
-          </div>
-          <div className="flex gap-3 flex-wrap justify-center">
-            <button
-              onClick={download}
-              disabled={!stripUrl}
-              className="rounded-2xl w-27 h-8 px-6 py-3 font-bold text-sm transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-2 shadow-lg backdrop-blur-md flex justify-center items-center"
-              style={{
-                background: "rgba(255,255,255,0.15)",
-                color: template.textColor,
-                border: `1px solid ${template.border}44`,
-              }}
-            >
-              <span>
-                <ArrowInDownSquareHalf />
-              </span>{" "}
-              Download
-            </button>
-            {shareUrl && !shareUrl.startsWith("data:") && (
+            <div className="flex gap-3 flex-wrap justify-center">
               <button
-                onClick={copyLink}
+                onClick={download}
+                disabled={!stripUrl}
                 className="rounded-2xl w-27 h-8 px-6 py-3 font-bold text-sm transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-2 shadow-lg backdrop-blur-md flex justify-center items-center"
                 style={{
                   background: "rgba(255,255,255,0.15)",
-                  color: template.textColor,
-                  border: `1px solid ${template.border}44`,
+                  color: activeTemplate.textColor,
+                  border: `1px solid ${activeTemplate.border}44`,
                 }}
               >
                 <span>
-                  <Copy />
+                  <ArrowInDownSquareHalf />
                 </span>{" "}
-                Copy Link
+                Download
               </button>
-            )}
+              {shareUrl && !shareUrl.startsWith("data:") && (
+                <button
+                  onClick={copyLink}
+                  className="rounded-2xl w-27 h-8 px-6 py-3 font-bold text-sm transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-2 shadow-lg backdrop-blur-md flex justify-center items-center"
+                  style={{
+                    background: "rgba(255,255,255,0.15)",
+                    color: activeTemplate.textColor,
+                    border: `1px solid ${activeTemplate.border}44`,
+                  }}
+                >
+                  <span>
+                    <Copy />
+                  </span>{" "}
+                  Copy Link
+                </button>
+              )}
+            </div>
           </div>
-        </div>
+        )}
         <div className="flex flex-col items-center gap-3 shrink-0">
           <div
             className="rounded-3xl p-5 flex flex-col items-center gap-3 backdrop-blur-md"
             style={{
               background: "rgba(0,0,0,0.35)",
-              border: `2px solid ${template.border}33`,
+              border: `2px solid ${activeTemplate.border}33`,
               minWidth: 180,
-              boxShadow: `0 12px 45px ${template.border}22`,
+              boxShadow: `0 12px 45px ${activeTemplate.border}22`,
             }}
           >
             <div className="text-center">
               <p
                 className="font-bold text-center text-sm mb-1"
-                style={{ color: template.textColor }}
+                style={{ color: activeTemplate.textColor }}
               >
-                Scan untuk simpan
+                Scan untuk simpan {config.mode === 'berbayar' ? 'Album' : ''}
               </p>
               <p
                 className="text-xs opacity-50"
-                style={{ color: template.textColor }}
+                style={{ color: activeTemplate.textColor }}
               >
                 {shareUrl && !shareUrl.startsWith("data:")
                   ? "Cloud Upload"
@@ -1092,7 +1125,7 @@ export default function FinalPage({ photos, template, onRestart, config }) {
             {qrUrl ? (
               <div
                 className="sk-zi rounded-2xl overflow-hidden p-3 bg-white shadow-xl"
-                style={{ border: `3px solid ${template.border}` }}
+                style={{ border: `3px solid ${activeTemplate.border}` }}
               >
                 <img src={qrUrl} alt="QR Code" className="w-48 h-48" />
               </div>
@@ -1101,14 +1134,14 @@ export default function FinalPage({ photos, template, onRestart, config }) {
                 className="w-48 h-48 rounded-2xl flex items-center justify-center"
                 style={{
                   background: "rgba(255,255,255,0.08)",
-                  border: `2px dashed ${template.border}66`,
+                  border: `2px dashed ${activeTemplate.border}66`,
                 }}
               >
                 <div className="text-center">
                   <div className="text-4xl sk-ss">🔲</div>
                   <p
                     className="text-xs mt-2 font-medium"
-                    style={{ color: template.textColor, opacity: 0.7 }}
+                    style={{ color: activeTemplate.textColor, opacity: 0.7 }}
                   >
                     Generating...
                   </p>
@@ -1118,7 +1151,7 @@ export default function FinalPage({ photos, template, onRestart, config }) {
             <div className="text-center space-y-1">
               <p
                 className="font-medium text-xs opacity-80 max-w-44"
-                style={{ color: template.textColor }}
+                style={{ color: activeTemplate.textColor }}
               >
                 {shareUrl && !shareUrl.startsWith("data:")
                   ? "Scan QR untuk buka foto"
@@ -1127,7 +1160,7 @@ export default function FinalPage({ photos, template, onRestart, config }) {
               {shareUrl && !shareUrl.startsWith("data:") && (
                 <p
                   className="text-[10px] opacity-40 font-mono truncate max-w-44"
-                  style={{ color: template.textColor }}
+                  style={{ color: activeTemplate.textColor }}
                 >
                   {shareUrl}
                 </p>
@@ -1135,17 +1168,17 @@ export default function FinalPage({ photos, template, onRestart, config }) {
             </div>
           </div>
           <div className="text-center space-y-1">
-            <p className="text-3xl sk-bs">{template.emoji}</p>
+            <p className="text-3xl sk-bs">{activeTemplate.emoji}</p>
             <div>
               <p
                 className="font-bold text-sm"
-                style={{ color: template.textColor }}
+                style={{ color: activeTemplate.textColor }}
               >
-                {template.name}
+                {activeTemplate.name}
               </p>
               <p
                 className="text-xs opacity-50"
-                style={{ color: template.textColor }}
+                style={{ color: activeTemplate.textColor }}
               >
                 SKANIGA PORTRAIT
               </p>
@@ -1153,24 +1186,24 @@ export default function FinalPage({ photos, template, onRestart, config }) {
           </div>
         </div>
       </div>
-      <div className="relative z-10 pb-4 px-4 text-center space-y-2 shrink-0">
+      <div className="relative z-10 pb-4 px-4 text-center space-y-2 shrink-0 flex flex-col items-center">
         {status === "done" && (
           <p
-            className="text-xs opacity-40"
-            style={{ color: template.textColor }}
+            className="text-xs opacity-40 mb-2"
+            style={{ color: activeTemplate.textColor }}
           >
             {shareUrl && !shareUrl.startsWith("data:")
               ? "Foto tersimpan di cloud • Scan QR untuk akses"
               : "Mode offline aktif • Download untuk simpan"}
           </p>
         )}
-        <div className="flex justify-center">
+        <div className="flex justify-center gap-4 flex-wrap">
           <button
             onClick={handleRestart}
             className="w-50 h-11 flex justify-center items-center rounded-2xl px-8 py-3 font-bold text-white transition-all duration-300 hover:scale-105 active:scale-95 backdrop-blur-md gap-2"
             style={{
               background: "rgba(255,255,255,0.1)",
-              border: `1px solid ${template.border}44`,
+              border: `1px solid ${activeTemplate.border}44`,
             }}
           >
             <Home /> <span>Kembali ke Beranda</span>

@@ -23,12 +23,12 @@ export default function PhotoPage({ onComplete, onBack, config }) {
   const [photos, setPhotos] = useState([]);
   const [countdown, setCountdown] = useState(null);
   const [showFlash, setShowFlash] = useState(false);
-  const [phase, setPhase] = useState("setup"); // setup | ready | capturing | selecting | done
+  const [phase, setPhase] = useState("setup"); 
   const [camError, setCamError] = useState(null);
   const [autoRunning, setAutoRunning] = useState(false);
   const [devices, setDevices] = useState([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState("");
-  const [selected, setSelected] = useState([]); // Array of indices (max 3), order matters!
+  const [selected, setSelected] = useState([]); 
 
   const stopCamera = useCallback(() => {
     if (streamRef.current) {
@@ -321,7 +321,6 @@ export default function PhotoPage({ onComplete, onBack, config }) {
     );
   }
 
-  
   return (
     <div className="fixed inset-0 flex flex-col overflow-hidden bg-black select-none">
       <canvas ref={canvasRef} className="hidden" />
@@ -351,7 +350,7 @@ export default function PhotoPage({ onComplete, onBack, config }) {
           ))}
         </div>
 
-        <div className="w-10 h-10" /> {/* Balancer */}
+        <div className="w-10 h-10" /> {}
       </div>
 
       <div className="flex-1 relative w-full h-full flex items-center justify-center bg-[#050505] p-2 md:p-6 pb-24 md:pb-6">
@@ -369,10 +368,10 @@ export default function PhotoPage({ onComplete, onBack, config }) {
             </div>
           ) : (
             <div className="relative w-full h-full flex items-center justify-center">
-              {/* Video view with grid overlay */}
+              {}
               <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover transform -scale-x-100" />
               
-              {/* Camera Grid Lines (Rule of thirds) */}
+              {}
               {phase === "ready" && (
                 <div className="absolute inset-0 pointer-events-none opacity-20">
                   <div className="absolute top-1/3 left-0 right-0 h-[1px] bg-white shadow-[0_1px_2px_rgba(0,0,0,0.5)]" />
@@ -382,7 +381,7 @@ export default function PhotoPage({ onComplete, onBack, config }) {
                 </div>
               )}
 
-              {/* Countdown overlay */}
+              {}
               {countdown !== null && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-[2px]">
                   {countdown === 0 ? (
@@ -399,7 +398,7 @@ export default function PhotoPage({ onComplete, onBack, config }) {
 
               <div className="absolute bottom-8 inset-x-0 flex flex-col items-center gap-4 pointer-events-none">
                 
-                {/* Camera selector (Desktop only basically) */}
+                {}
                 {phase === "ready" && !autoRunning && devices.length > 1 && (
                   <select value={selectedDeviceId} onChange={(e) => setSelectedDeviceId(e.target.value)}
                     className="pointer-events-auto appearance-none rounded-full px-6 py-2.5 text-xs font-bold tracking-widest uppercase outline-none bg-black/50 backdrop-blur-md text-white border border-white/20 hover:bg-black/70 transition-colors text-center text-center-last">

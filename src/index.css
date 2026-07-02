@@ -4,13 +4,52 @@
 @import "tailwindcss";
 
 :root {
-  --cream: #ced2d6;
+  --cream: #E8EDF2;
   --dark: #2C3947;
   --blue: #547A95;
   --gold: #C2A56D;
+  --bg-gradient: linear-gradient(135deg, #E8EDF2 0%, #d4dce6 50%, #E8EDF2 100%);
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+.sk-theme-light {
+  --cream: #E8EDF2;
+  --dark: #2C3947;
+  --blue: #547A95;
+  --gold: #C2A56D;
+  --bg-gradient: linear-gradient(135deg, #E8EDF2 0%, #d4dce6 50%, #E8EDF2 100%);
+}
+
+.sk-theme-dark {
+  --cream: #0c0c0e;
+  --dark: #F3F4F6;
+  --blue: #3b82f6;
+  --gold: #f59e0b;
+  --bg-gradient: linear-gradient(135deg, #0c0c0e 0%, #161622 50%, #0c0c0e 100%);
+}
+
+.sk-theme-gold {
+  --cream: #FAF9F6;
+  --dark: #1E1E10;
+  --blue: #8C7853;
+  --gold: #D4AF37;
+  --bg-gradient: linear-gradient(135deg, #FAF9F6 0%, #EADEC9 50%, #FAF9F6 100%);
+}
+
+.sk-theme-sakura {
+  --cream: #FFF5F6;
+  --dark: #4A2834;
+  --blue: #EC4899;
+  --gold: #F472B6;
+  --bg-gradient: linear-gradient(135deg, #FFF5F6 0%, #FCE4EC 50%, #FFF5F6 100%);
+}
+
+.sk-theme-light, .sk-theme-dark, .sk-theme-gold, .sk-theme-sakura {
+  background: var(--cream);
+  color: var(--dark);
+  transition: background 0.5s ease, color 0.5s ease;
+}
+
+* { box-sizing: border-box; }
 
 html {
   scroll-behavior: smooth;

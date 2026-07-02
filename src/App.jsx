@@ -37,7 +37,9 @@ export default function App() {
         imgbbApiKey: parsed.imgbbApiKey || 'ab03a93ae55127be2fc02960dfde7834',
         imgurClientId: parsed.imgurClientId || '',
         cloudinaryCloudName: parsed.cloudinaryCloudName || 'dlb2wugmt',
-        cloudinaryUploadPreset: parsed.cloudinaryUploadPreset || 'photobooth_skaniga'
+        cloudinaryUploadPreset: parsed.cloudinaryUploadPreset || 'photobooth_skaniga',
+        theme: parsed.theme || 'light',
+        paidUploadProvider: parsed.paidUploadProvider || 'imgur'
       }
     } catch {
       return {
@@ -51,7 +53,9 @@ export default function App() {
         imgbbApiKey: 'ab03a93ae55127be2fc02960dfde7834',
         imgurClientId: '',
         cloudinaryCloudName: 'dlb2wugmt',
-        cloudinaryUploadPreset: 'photobooth_skaniga'
+        cloudinaryUploadPreset: 'photobooth_skaniga',
+        theme: 'light',
+        paidUploadProvider: 'imgur'
       }
     }
   })
@@ -141,7 +145,13 @@ export default function App() {
       setPaidUploadCount(prev => prev + 1)
       setChosenPhotos([])
       setSelectedTemplate(null)
-      setPage('photo')
+      const isSessionOver = appConfig.mode === 'berbayar' && sessionEnd > 0 && Date.now() >= sessionEnd
+      if (isSessionOver) {
+        expiredHandled.current = true
+        setPage('final')
+      } else {
+        setPage('photo')
+      }
     } else {
       setPage('final')
     }
@@ -183,7 +193,7 @@ export default function App() {
   }, [now, sessionEnd, appConfig.mode, page])
 
   return (
-    <div className="min-h-screen relative" style={{ fontFamily: 'Urbanist, sans-serif' }}>
+    <div className={`min-h-screen relative sk-theme-${appConfig.theme || 'light'}`} style={{ fontFamily: 'Urbanist, sans-serif' }}>
       {showLockScreen ? (
         <LockScreen onUnlock={handleUnlock} pin={appConfig.pin} />
       ) : (
@@ -232,7 +242,7 @@ export default function App() {
           {appConfig.mode === 'berbayar' && page !== 'landing' && page !== 'final' && sessionEnd > 0 && now < sessionEnd && (
             <div className="absolute top-6 left-6 z-50 bg-white/80 backdrop-blur-md px-6 py-3 rounded-full shadow-lg border border-white/40 flex items-center gap-3">
               <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-              <span className="font-display font-bold text-xl text-[#2C3947] tracking-widest">
+              <span className="sk-font-display font-bold text-xl text-[#2C3947] tracking-widest">
                 {formatTime(sessionEnd - now)}
               </span>
               {paidUploadCount > 0 && (
@@ -241,6 +251,16 @@ export default function App() {
                 </span>
               )}
             </div>
+          )}
+
+          {appConfig.mode === 'berbayar' && (
+            <button
+              onClick={() => window.location.href = '/settings'}
+              className="fixed bottom-6 left-6 z-[99] w-10 h-10 rounded-full bg-black/5 hover:bg-black/20 border border-black/10 backdrop-blur-sm flex items-center justify-center text-black/30 hover:text-black/70 dark:text-white/20 dark:hover:text-white/70 dark:bg-white/5 dark:hover:bg-white/25 dark:border-white/10 transition-all cursor-pointer opacity-30 hover:opacity-100"
+              title="Pengaturan"
+            >
+              ⚙️
+            </button>
           )}
 
           {appConfig.controlButtonMode === 'fullscreen' ? (

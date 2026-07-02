@@ -3,7 +3,6 @@ import { TEMPLATES } from '../utils/templates'
 import { ArrowBigLeft, Check } from '@boxicons/react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-// ─── Sticker assets ───────────────────────────────────────────────────────────
 import astronotImg1 from '../assets/astronot1.png'
 import astronotImg2 from '../assets/astronot2.png'
 import planetImg from '../assets/planet.png'
@@ -77,15 +76,12 @@ function extractColors(gradStr) {
   return [m[0], m[m.length - 1]]
 }
 
-// ─── StripPreview component ─────────────────────────────────────────────────
-// Renders a mini version of the actual photo strip with real photos + stickers
 function StripPreview({ template, photos, height, config }) {
   const [c1, c2] = extractColors(template.stripBg)
   const stickers = STICKERS[template.id] || []
   const dt = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
   const bf = template.font?.includes('Bebas') ? '"Bebas Neue", sans-serif' : '"Playfair Display", serif'
 
-  // Final rendering dimensions are 600x1198
   const ORIG_W = 600;
   const ORIG_H = 1198;
   const scale = height / ORIG_H;
@@ -98,7 +94,7 @@ function StripPreview({ template, photos, height, config }) {
         width: renderW,
         height: height,
         boxShadow: `0 0 0 2px ${template.border}, 0 20px 60px ${template.border}44`,
-        background: template.border // fallback for rounded corners clipping
+        background: template.border 
       }}
     >
       <div 
@@ -111,11 +107,11 @@ function StripPreview({ template, photos, height, config }) {
           background: `linear-gradient(180deg, ${c1} 0%, ${c2} 50%, ${c1} 100%)`,
         }}
       >
-        {/* Outer and Inner borders from FinalPage */}
+        {}
         <div className="absolute border" style={{ top: 0, left: 0, width: 600, height: 1198, borderWidth: 8, borderColor: template.border }} />
         <div className="absolute border" style={{ top: 12, left: 12, width: 576, height: 1174, borderWidth: 2, borderColor: template.border + '33' }} />
         
-        {/* Photos */}
+        {}
         {[0, 1, 2].map(i => {
           const x = 36;
           const y = 36 + i * (320 + 18);
@@ -126,7 +122,7 @@ function StripPreview({ template, photos, height, config }) {
               {photos[i] && <img src={photos[i]} alt="" className="w-full h-full object-cover" style={{ transform: 'scaleX(-1)' }} />}
               <div className="absolute border" style={{ inset: 0, borderWidth: 4, borderColor: template.border + '77' }} />
               
-              {/* Badge */}
+              {}
               <div className="absolute" style={{ bottom: 12, right: 12, width: 42, height: 24, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span style={{ color: '#fff', fontSize: 12, fontWeight: 'bold', fontFamily: '"Urbanist", sans-serif' }}>{i + 1}/3</span>
               </div>
@@ -134,7 +130,7 @@ function StripPreview({ template, photos, height, config }) {
           )
         })}
 
-        {/* Footer text */}
+        {}
         <div className="absolute w-full text-center" style={{ top: 1068 }}>
           <p style={{ color: template.textColor, fontFamily: bf, fontSize: 44, fontWeight: 'bold', textShadow: `0 0 10px ${template.border}66` }}>
             {config?.watermarkText || 'SKANIGA PORTRAIT'}
@@ -151,7 +147,7 @@ function StripPreview({ template, photos, height, config }) {
           </p>
         </div>
 
-        {/* Stickers perfectly positioned */}
+        {}
         {stickers.map((s, i) => (
           <img key={i} src={s.src} alt="" className="absolute pointer-events-none select-none"
             style={{ top: s.style.top, left: s.style.left, width: s.style.width, height: s.style.height, objectFit: 'contain', zIndex: 10 }} />
@@ -161,7 +157,6 @@ function StripPreview({ template, photos, height, config }) {
   )
 }
 
-// ─── Main Component ────────────────────────────────────────────────────────────
 export default function TemplatePage({ onSelect, onBack, selectedPhotos, config }) {
   const [activeIndex, setActiveIndex] = useState(0)
   const [saving, setSaving] = useState(false)
@@ -183,7 +178,6 @@ export default function TemplatePage({ onSelect, onBack, selectedPhotos, config 
   const { width, height } = dimensions
   const isMobile = width < 640
 
-  // Strip dimensions - scaled to fit screen but with 600x1198 native ratio
   const stripH = isMobile ? Math.min(height * 0.65, 480) : Math.min(height * 0.72, 650)
   const stripW = stripH * (600 / 1198)
   const gap = isMobile ? 24 : 40
@@ -206,28 +200,26 @@ export default function TemplatePage({ onSelect, onBack, selectedPhotos, config 
     onepiece: 'linear-gradient(135deg, #001624 0%, #00263d 50%, #000e17 100%)',
   }
 
-  // Keyboard navigation
   useEffect(() => {
     const handler = (e) => {
       if (saving) return
       if (e.key === 'ArrowLeft') { e.preventDefault(); setActiveIndex((p) => Math.max(0, p - 1)) }
       else if (e.key === 'ArrowRight') { e.preventDefault(); setActiveIndex((p) => Math.min(TEMPLATES.length - 1, p + 1)) }
-      else if (e.key === 'Enter') { e.preventDefault(); handleSave() }
+      else if (e.key === 'Enter') { e.preventDefault(); handleTemplateClick(activeIndex) }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
   }, [activeIndex, saving])
 
-  const handleSave = useCallback(() => {
-    if (saving) return
-    const tmpl = TEMPLATES[activeIndex]
+  const handleTemplateClick = useCallback((index) => {
+    if (saving || isDragging.current) return
+    setActiveIndex(index)
+    const tmpl = TEMPLATES[index]
     setSaving(true)
     setSavedId(tmpl.id)
-    // Smooth save: scale up → checkmark → fade out
     setTimeout(() => onSelect(tmpl), 1200)
-  }, [activeIndex, saving, onSelect])
+  }, [saving, onSelect])
 
-  // Swipe logic
   const onSwipe = (dx) => {
     if (saving) return
     if (dx < 0) setActiveIndex((p) => Math.min(TEMPLATES.length - 1, p + 1))
@@ -236,18 +228,18 @@ export default function TemplatePage({ onSelect, onBack, selectedPhotos, config 
 
   return (
     <div className="fixed inset-0 flex flex-col overflow-hidden select-none">
-      {/* Animated background */}
+      {}
       <motion.div
         className="fixed inset-0 -z-20 pointer-events-none"
         animate={{ background: BACKGROUND_THEMES[currentTemplate.id] || 'linear-gradient(160deg, #E8EDF2 0%, #d0d8e2 100%)' }}
         transition={{ duration: 0.8, ease: 'easeInOut' }}
       />
 
-      {/* Dot pattern overlay */}
+      {}
       <div className="absolute inset-0 opacity-5 -z-15 pointer-events-none"
         style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #2C3947 1px, transparent 0)', backgroundSize: '32px 32px' }} />
 
-      {/* Glow blobs */}
+      {}
       <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
         <motion.div className="absolute w-[350px] md:w-[500px] h-[350px] md:h-[500px] rounded-full filter blur-[90px] md:blur-[130px] opacity-35"
           style={{ top: '15%', left: '15%' }}
@@ -261,7 +253,7 @@ export default function TemplatePage({ onSelect, onBack, selectedPhotos, config 
         />
       </div>
 
-      {/* Save overlay animation */}
+      {}
       <AnimatePresence>
         {saving && (
           <motion.div
@@ -271,7 +263,7 @@ export default function TemplatePage({ onSelect, onBack, selectedPhotos, config 
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            {/* Backdrop blur */}
+            {}
             <motion.div
               className="absolute inset-0"
               initial={{ backdropFilter: 'blur(0px)', background: 'rgba(0,0,0,0)' }}
@@ -279,7 +271,7 @@ export default function TemplatePage({ onSelect, onBack, selectedPhotos, config 
               transition={{ duration: 0.5 }}
             />
 
-            {/* The strip scales up + checkmark */}
+            {}
             <motion.div
               className="relative z-10 flex flex-col items-center gap-4"
               initial={{ scale: 0.85, opacity: 0 }}
@@ -288,7 +280,7 @@ export default function TemplatePage({ onSelect, onBack, selectedPhotos, config 
             >
               <StripPreview template={TEMPLATES[activeIndex]} photos={selectedPhotos || []} height={Math.min(stripH * 1.1, height * 0.9)} config={config} />
 
-              {/* Check badge */}
+              {}
               <motion.div
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
                 initial={{ scale: 0, opacity: 0 }}
@@ -315,10 +307,10 @@ export default function TemplatePage({ onSelect, onBack, selectedPhotos, config 
         )}
       </AnimatePresence>
 
-      {/* ─── Content layout ─────────────────────────────────────────────────── */}
+      {}
       <div className="relative z-10 flex flex-col h-full">
 
-        {/* Header */}
+        {}
         <div className="flex items-center justify-between px-6 md:px-12 lg:px-20 pt-6 pb-2 shrink-0">
           <motion.button
             onClick={onBack}
@@ -344,13 +336,13 @@ export default function TemplatePage({ onSelect, onBack, selectedPhotos, config 
 
         <motion.p className="text-center text-xs md:text-sm font-medium pb-2 px-4 shrink-0"
           animate={{ color: subtitleColor }}>
-          Geser untuk memilih frame · Klik <strong>Simpan</strong> jika sudah cocok
+          Geser untuk melihat · Klik langsung pada frame untuk memilih
         </motion.p>
 
-        {/* ─── Strip Carousel ────────────────────────────────────────────── */}
+        {}
         <div className="flex-1 flex items-center justify-center px-2 md:px-8 pb-2 min-h-0 relative w-full overflow-hidden">
 
-          {/* Prev button */}
+          {}
           <button onClick={() => !saving && setActiveIndex(p => Math.max(0, p - 1))}
             disabled={activeIndex === 0 || saving}
             className="absolute left-1 md:left-6 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md transition-all active:scale-90 cursor-pointer disabled:opacity-10 disabled:cursor-not-allowed"
@@ -358,7 +350,7 @@ export default function TemplatePage({ onSelect, onBack, selectedPhotos, config 
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
           </button>
 
-          {/* Strips container */}
+          {}
           <div className="w-full h-full relative flex items-center overflow-visible"
             style={{ perspective: '1200px' }}
           >
@@ -417,7 +409,7 @@ export default function TemplatePage({ onSelect, onBack, selectedPhotos, config 
                   <motion.div
                     key={tmpl.id}
                     className="shrink-0 cursor-pointer"
-                    onClick={() => { if (!isDragging.current && !saving) setActiveIndex(i) }}
+                    onClick={() => { if (!isDragging.current && !saving) handleTemplateClick(i) }}
                     animate={{
                       scale: isActive ? 1 : 0.78,
                       opacity: isActive ? 1 : 0.35,
@@ -434,7 +426,7 @@ export default function TemplatePage({ onSelect, onBack, selectedPhotos, config 
             </motion.div>
           </div>
 
-          {/* Next button */}
+          {}
           <button onClick={() => !saving && setActiveIndex(p => Math.min(TEMPLATES.length - 1, p + 1))}
             disabled={activeIndex === TEMPLATES.length - 1 || saving}
             className="absolute right-1 md:right-6 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md transition-all active:scale-90 cursor-pointer disabled:opacity-10 disabled:cursor-not-allowed"
@@ -443,10 +435,10 @@ export default function TemplatePage({ onSelect, onBack, selectedPhotos, config 
           </button>
         </div>
 
-        {/* ─── Bottom: Info + Save Button ────────────────────────────────── */}
+        {}
         <div className="flex flex-col items-center shrink-0 pb-6 pt-1 z-10 w-full px-4">
 
-          {/* Template name/tagline */}
+          {}
           <div className="h-12 flex items-center justify-center w-full max-w-md mb-2 overflow-hidden">
             <AnimatePresence mode="wait">
               <motion.div key={currentTemplate.id}
@@ -464,7 +456,6 @@ export default function TemplatePage({ onSelect, onBack, selectedPhotos, config 
             </AnimatePresence>
           </div>
 
-          {/* Dots */}
           <div className="flex gap-1 mb-3 justify-center items-center">
             {TEMPLATES.map((tmpl, idx) => (
               <button key={tmpl.id} onClick={() => !saving && setActiveIndex(idx)}
@@ -479,24 +470,6 @@ export default function TemplatePage({ onSelect, onBack, selectedPhotos, config 
               </button>
             ))}
           </div>
-
-          {/* SIMPAN button */}
-          <motion.button
-            onClick={handleSave}
-            disabled={saving}
-            className="flex items-center gap-3 rounded-2xl px-10 py-3.5 font-extrabold text-base uppercase tracking-widest transition-all cursor-pointer disabled:cursor-not-allowed shadow-xl"
-            style={{
-              background: `linear-gradient(135deg, ${currentTemplate.border}, ${currentTemplate.accent || currentTemplate.border})`,
-              color: '#fff',
-              boxShadow: `0 8px 30px ${currentTemplate.border}55`,
-              border: '1px solid rgba(255,255,255,0.2)',
-            }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Check size="20" />
-            <span>Simpan</span>
-          </motion.button>
         </div>
       </div>
     </div>

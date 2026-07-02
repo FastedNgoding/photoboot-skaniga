@@ -35,7 +35,6 @@ import omImg1 from "../assets/om1.png";
 import omImg2 from "../assets/om2.png";
 import omImg3 from "../assets/om3.png";
 
-
 const IMGBB_API_KEY = "ab03a93ae55127be2fc02960dfde7834";
 const CLOUDINARY_CLOUD = "dlb2wugmt";
 const CLOUDINARY_PRESET = "photobooth_skaniga";
@@ -95,7 +94,6 @@ function drawPlanet(c, x, y, r, col, rc) {
   c.ellipse(x, y, r * 1.8, r * 0.4, Math.PI / 6, 0, Math.PI * 2);
   c.stroke();
 }
-
 
 function drawBow(c, x, y, s, col) {
   c.fillStyle = col;
@@ -703,9 +701,6 @@ export function buildStrip(photos, template, config) {
   });
 }
 
-
-
-
 const CSS = `
 @keyframes sk-fl { 0%,100%{transform:translateY(0) rotate(0)} 50%{transform:translateY(-20px) rotate(5deg)} }
 .sk-fl { animation: sk-fl 4s ease-in-out infinite }
@@ -772,13 +767,11 @@ export default function FinalPage({ photos, template, onRestart, config, isExpir
           return
         }
 
-        // 1. Always build the collage first to display it on screen
         setStatus("building")
         setErr(null)
         const collageB64 = await buildCollage(urls, config.watermarkText)
         setStripUrl(collageB64)
 
-        // 2. Try creating an Imgur Album first if we have Imgur IDs
         const imgurIds = getPaidImgurIds()
         if (imgurIds.length > 0 && config.imgurClientId) {
           setStatus("uploading")
@@ -796,7 +789,6 @@ export default function FinalPage({ photos, template, onRestart, config, isExpir
           }
         }
 
-        // 3. Fallback 1: Skaniga's Own Share Page using successfully uploaded individual strip URLs
         const validUrls = urls.filter(u => u && u.startsWith("http"))
         if (validUrls.length > 0) {
           const sharePageUrl = window.location.origin + "/share?images=" + encodeURIComponent(validUrls.join(","))
@@ -811,7 +803,6 @@ export default function FinalPage({ photos, template, onRestart, config, isExpir
           return
         }
 
-        // 4. Fallback 2: Upload the collage image if no individual image URLs were successfully uploaded
         setStatus("uploading")
         const res = await uploadStripPaid(collageB64, config)
         let finalUrl = collageB64
@@ -1080,7 +1071,7 @@ export default function FinalPage({ photos, template, onRestart, config, isExpir
               {shareUrl && !shareUrl.startsWith("data:") && (
                 <button
                   onClick={copyLink}
-                  className="rounded-2xl w-27 h-8 px-6 py-3 font-bold text-sm transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-2 shadow-lg backdrop-blur-md flex justify-center items-center"
+                  className="rounded-2xl w-27 h-8 px-1 py-3 font-bold text-sm transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-2 shadow-lg backdrop-blur-md flex justify-center items-center"
                   style={{
                     background: "rgba(255,255,255,0.15)",
                     color: activeTemplate.textColor,
@@ -1200,7 +1191,7 @@ export default function FinalPage({ photos, template, onRestart, config, isExpir
         <div className="flex justify-center gap-4 flex-wrap">
           <button
             onClick={handleRestart}
-            className="w-50 h-11 flex justify-center items-center rounded-2xl px-8 py-3 font-bold text-white transition-all duration-300 hover:scale-105 active:scale-95 backdrop-blur-md gap-2"
+            className="w-50 h-11 flex justify-center items-center rounded-2xl px-2 py-3 font-bold text-white transition-all duration-300 hover:scale-105 active:scale-95 backdrop-blur-md gap-2"
             style={{
               background: "rgba(255,255,255,0.1)",
               border: `1px solid ${activeTemplate.border}44`,

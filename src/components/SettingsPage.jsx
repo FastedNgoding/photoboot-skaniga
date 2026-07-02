@@ -7,15 +7,15 @@ export default function SettingsPage({ config, onSave }) {
   const [controlButtonMode, setControlButtonMode] = useState(config.controlButtonMode || 'music')
   const [countdownDuration, setCountdownDuration] = useState(config.countdownDuration || 3)
   const [watermarkText, setWatermarkText] = useState(config.watermarkText || 'SKANIGA PORTRAIT')
-  
-  // Upload Settings
+
   const [freeUploadProvider, setFreeUploadProvider] = useState(config.freeUploadProvider || 'imgbb')
   const [imgbbApiKey, setImgbbApiKey] = useState(config.imgbbApiKey || 'ab03a93ae55127be2fc02960dfde7834')
   const [imgurClientId, setImgurClientId] = useState(config.imgurClientId || '')
   const [cloudinaryCloudName, setCloudinaryCloudName] = useState(config.cloudinaryCloudName || 'dlb2wugmt')
   const [cloudinaryUploadPreset, setCloudinaryUploadPreset] = useState(config.cloudinaryUploadPreset || 'photobooth_skaniga')
+  const [theme, setTheme] = useState(config.theme || 'light')
+  const [paidUploadProvider, setPaidUploadProvider] = useState(config.paidUploadProvider || 'imgur')
 
-  // Authentication state
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [inputPin, setInputPin] = useState('')
   const [pinError, setPinError] = useState(false)
@@ -44,20 +44,22 @@ export default function SettingsPage({ config, onSave }) {
       imgbbApiKey,
       imgurClientId,
       cloudinaryCloudName,
-      cloudinaryUploadPreset
+      cloudinaryUploadPreset,
+      theme,
+      paidUploadProvider
     })
   }
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#E8EDF2] font-body px-4">
+      <div className="min-h-screen flex items-center justify-center bg-[#E8EDF2] sk-font-body px-4">
         <div className="bg-white p-8 rounded-3xl shadow-xl w-full max-w-sm text-center">
           <div className="w-16 h-16 bg-[#C2A56D]/10 text-[#C2A56D] rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           </div>
-          <h2 className="text-2xl font-display font-bold text-[#2C3947] mb-6">Akses Pengaturan</h2>
+          <h2 className="text-2xl sk-font-display font-bold text-[#2C3947] mb-6">Akses Pengaturan</h2>
           <form onSubmit={handleAuth}>
             <input
               type="password"
@@ -81,13 +83,12 @@ export default function SettingsPage({ config, onSave }) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#E8EDF2] font-body px-4 py-8 overflow-y-auto">
+    <div className="min-h-screen flex items-center justify-center bg-[#E8EDF2] sk-font-body px-4 py-8 overflow-y-auto">
       <div className="bg-white !p-8 rounded-3xl shadow-xl w-full max-w-2xl my-auto">
-        <h1 className="text-3xl font-display font-bold text-[#2C3947] mb-6 text-center">Pengaturan Web</h1>
+        <h1 className="text-3xl sk-font-display font-bold text-[#2C3947] mb-6 text-center">Pengaturan Web</h1>
         
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Kolom 1: Pengaturan Utama */}
             <div className="space-y-6">
               <h2 className="text-xl font-bold border-b pb-2 text-[#2C3947]">Utama</h2>
               
@@ -137,6 +138,20 @@ export default function SettingsPage({ config, onSave }) {
                   <p className="text-xs text-gray-500 mt-1">Saat waktu habis, QR otomatis dicetak (Imgur).</p>
                 </div>
               )}
+
+              <div>
+                <label className="block text-sm font-semibold text-[#547A95] !mb-2">Tema Aplikasi</label>
+                <select
+                  value={theme}
+                  onChange={(e) => setTheme(e.target.value)}
+                  className="w-full !p-3 rounded-xl border-2 border-gray-200 focus:border-[#547A95] outline-none font-bold"
+                >
+                  <option value="light">Sleek Light (Default)</option>
+                  <option value="dark">Cyber Dark</option>
+                  <option value="gold">Warm Gold</option>
+                  <option value="sakura">Sakura Pink</option>
+                </select>
+              </div>
 
               <div>
                 <label className="block text-sm font-semibold text-[#547A95] !mb-2">Tombol Kanan Bawah</label>
@@ -217,12 +232,11 @@ export default function SettingsPage({ config, onSave }) {
               </div>
             </div>
 
-            {/* Kolom 2: Pengaturan Layanan Upload & API Key */}
             <div className="space-y-6">
               <h2 className="text-xl font-bold border-b pb-2 text-[#2C3947]">Konfigurasi Upload</h2>
               
               <div>
-                <label className="block text-sm font-semibold text-[#547A95] !mb-2">Layanan Mode Bebas</label>
+                <label className="block text-sm font-semibold text-[#547A95] !mb-2">Layanan Utama Mode Bebas</label>
                 <select 
                   value={freeUploadProvider}
                   onChange={(e) => setFreeUploadProvider(e.target.value)}
@@ -232,7 +246,20 @@ export default function SettingsPage({ config, onSave }) {
                   <option value="cloudinary">Cloudinary</option>
                   <option value="imgur">Imgur</option>
                 </select>
-                <p className="text-xs text-gray-500 mt-1">Mode Berbayar selalu menggunakan Imgur (atau Cloudinary sebagai cadangan) untuk grup foto.</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-[#547A95] !mb-2">Layanan Utama Mode Berbayar</label>
+                <select 
+                  value={paidUploadProvider}
+                  onChange={(e) => setPaidUploadProvider(e.target.value)}
+                  className="w-full !p-3 rounded-xl border-2 border-gray-200 focus:border-[#547A95] outline-none font-bold"
+                >
+                  <option value="imgur">Imgur</option>
+                  <option value="imgbb">ImgBB</option>
+                  <option value="cloudinary">Cloudinary</option>
+                </select>
+                <p className="text-xs text-gray-500 mt-1">Jika pilihan utama gagal, upload otomatis dialihkan ke cadangan lainnya secara bergantian.</p>
               </div>
 
               <div>
@@ -278,7 +305,6 @@ export default function SettingsPage({ config, onSave }) {
                   placeholder="contoh: photobooth_skaniga"
                 />
               </div>
-
             </div>
           </div>
 
@@ -302,4 +328,3 @@ export default function SettingsPage({ config, onSave }) {
     </div>
   )
 }
-

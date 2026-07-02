@@ -49,7 +49,7 @@ export async function upImgur(b64, clientId) {
       body: fd
     })
     const d = await r.json()
-    if (d.success) return { ok: true, url: d.data.link }
+    if (d.success) return { ok: true, url: d.data.link, id: d.data.id }
     return { ok: false, err: d.data?.error?.message || d.data?.error || "Imgur upload fail" }
   } catch (e) {
     return { ok: false, err: e.message }
@@ -60,7 +60,6 @@ export async function uploadStripFree(stripB64, config) {
   const provider = config.freeUploadProvider || 'imgbb'
   let res = { ok: false }
 
-  // 1. Try Selected Provider
   if (provider === 'imgbb') {
     res = await upImgBB(stripB64, config.imgbbApiKey)
     if (res.ok) return res
@@ -74,7 +73,6 @@ export async function uploadStripFree(stripB64, config) {
     }
   }
 
-  // 2. Fallbacks if Selected fails
   if (provider !== 'imgbb') {
     res = await upImgBB(stripB64, config.imgbbApiKey)
     if (res.ok) return res
@@ -92,19 +90,34 @@ export async function uploadStripFree(stripB64, config) {
 }
 
 export async function uploadStripPaid(stripB64, config) {
-  // 1. First Choice: Imgur
-  if (config.imgurClientId) {
-    const resImgur = await upImgur(stripB64, config.imgurClientId)
-    if (resImgur.ok) return { ok: true, url: resImgur.url, id: resImgur.id, provider: 'imgur' }
+  const provider = config.paidUploadProvider || 'imgur'
+  let res = { ok: false }
+
+  if (provider === 'imgur') {
+    if (config.imgurClientId) {
+      res = await upImgur(stripB64, config.imgurClientId)
+      if (res.ok) return { ok: true, url: res.url, id: res.id, provider: 'imgur' }
+    }
+  } else if (provider === 'imgbb') {
+    res = await upImgBB(stripB64, config.imgbbApiKey)
+    if (res.ok) return { ok: true, url: res.url, provider: 'imgbb' }
+  } else if (provider === 'cloudinary') {
+    res = await upCloud(stripB64, config.cloudinaryCloudName, config.cloudinaryUploadPreset)
+    if (res.ok) return { ok: true, url: res.url, provider: 'cloudinary' }
   }
 
-  // 2. Second Choice (cadangan): Cloudinary
-  const resCloud = await upCloud(stripB64, config.cloudinaryCloudName, config.cloudinaryUploadPreset)
-  if (resCloud.ok) return { ok: true, url: resCloud.url, provider: 'cloudinary' }
-
-  // 3. Absolute Fallback: ImgBB
-  const resImgbb = await upImgBB(stripB64, config.imgbbApiKey)
-  if (resImgbb.ok) return { ok: true, url: resImgbb.url, provider: 'imgbb' }
+  if (provider !== 'imgur' && config.imgurClientId) {
+    res = await upImgur(stripB64, config.imgurClientId)
+    if (res.ok) return { ok: true, url: res.url, id: res.id, provider: 'imgur' }
+  }
+  if (provider !== 'cloudinary') {
+    res = await upCloud(stripB64, config.cloudinaryCloudName, config.cloudinaryUploadPreset)
+    if (res.ok) return { ok: true, url: res.url, provider: 'cloudinary' }
+  }
+  if (provider !== 'imgbb') {
+    res = await upImgBB(stripB64, config.imgbbApiKey)
+    if (res.ok) return { ok: true, url: res.url, provider: 'imgbb' }
+  }
 
   return { ok: false, err: "Semua layanan upload gagal." }
 }

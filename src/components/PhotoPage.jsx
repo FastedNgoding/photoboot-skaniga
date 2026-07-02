@@ -205,9 +205,9 @@ export default function PhotoPage({ onComplete, onBack, config }) {
           Pilih 3 foto terbaik untuk dicetak ke dalam strip.
         </p>
 
-        <div className="flex-1 flex flex-col items-center justify-center px-4 min-h-0 relative z-10 w-full mx-auto overflow-y-auto">
+        <div className="flex-1 flex flex-col items-center justify-center px-4 min-h-0 relative z-10 w-full mx-auto">
           
-          <div className="w-full flex justify-center gap-3 md:gap-6 mb-8 md:mb-12">
+          <div className="w-full flex justify-center gap-3 md:gap-6 mb-4 md:mb-8">
             {[0, 1, 2].map(slotIndex => {
               const photoIdx = selected[slotIndex];
               const isFilled = photoIdx !== undefined;
@@ -248,7 +248,7 @@ export default function PhotoPage({ onComplete, onBack, config }) {
           </div>
 
           <div className="w-full flex flex-col items-center">
-            <p className="text-xs font-bold text-white/30 uppercase tracking-widest mb-3 px-2" style={{ marginBottom: "10px", marginTop: "10px" }}>Hasil Jepretan ({TOTAL_CAPTURE})</p>
+            <p className="text-xs font-bold text-white/30 uppercase tracking-widest mb-3 px-2">Hasil Jepretan ({TOTAL_CAPTURE})</p>
             <div className="flex flex-wrap gap-3 md:gap-4 pb-4 px-2 justify-center max-w-4xl">
               {photos.map((photo, idx) => {
                 const rank = selected.indexOf(idx);

@@ -439,23 +439,6 @@ export default function TemplatePage({ onSelect, onBack, selectedPhotos, config 
         <div className="flex flex-col items-center shrink-0 pb-6 pt-1 z-10 w-full px-4">
 
           {}
-          <div className="h-12 flex items-center justify-center w-full max-w-md mb-2 overflow-hidden">
-            <AnimatePresence mode="wait">
-              <motion.div key={currentTemplate.id}
-                initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -14 }}
-                transition={{ duration: 0.35 }} className="text-center">
-                <h2 className="text-xl md:text-2xl font-black uppercase tracking-wider flex items-center justify-center gap-2"
-                  style={{ color: currentTemplate.accent || currentTemplate.border, fontFamily: currentTemplate.font || 'Urbanist, sans-serif' }}>
-                  <span>{currentTemplate.name}</span>
-                  <span className="text-base md:text-xl">{currentTemplate.emoji}</span>
-                </h2>
-                <p className="text-xs italic font-semibold opacity-75" style={{ color: subtitleColor }}>
-                  "{currentTemplate.tagline}"
-                </p>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
           <div className="flex gap-1 mb-3 justify-center items-center">
             {TEMPLATES.map((tmpl, idx) => (
               <button key={tmpl.id} onClick={() => !saving && setActiveIndex(idx)}

@@ -34,10 +34,10 @@ export default function App() {
         countdownDuration: parsed.countdownDuration || 3,
         watermarkText: parsed.watermarkText || 'SKANIGA PORTRAIT',
         freeUploadProvider: parsed.freeUploadProvider || 'imgbb',
-        imgbbApiKey: parsed.imgbbApiKey || 'ab03a93ae55127be2fc02960dfde7834',
+        imgbbApiKey: parsed.imgbbApiKey || 'a49272e5e22c14d2e44681221e169088',
         imgurClientId: parsed.imgurClientId || '',
-        cloudinaryCloudName: parsed.cloudinaryCloudName || 'dlb2wugmt',
-        cloudinaryUploadPreset: parsed.cloudinaryUploadPreset || 'photobooth_skaniga',
+        cloudinaryCloudName: parsed.cloudinaryCloudName || 'xoawhvbs',
+        cloudinaryUploadPreset: parsed.cloudinaryUploadPreset || 'photobooth_assets',
         theme: parsed.theme || 'light',
         paidUploadProvider: parsed.paidUploadProvider || 'imgur'
       }
@@ -50,10 +50,10 @@ export default function App() {
         countdownDuration: 3,
         watermarkText: 'SKANIGA PORTRAIT',
         freeUploadProvider: 'imgbb',
-        imgbbApiKey: 'ab03a93ae55127be2fc02960dfde7834',
+        imgbbApiKey: 'a49272e5e22c14d2e44681221e169088',
         imgurClientId: '',
-        cloudinaryCloudName: 'dlb2wugmt',
-        cloudinaryUploadPreset: 'photobooth_skaniga',
+        cloudinaryCloudName: 'xoawhvbs',
+        cloudinaryUploadPreset: 'photobooth_assets',
         theme: 'light',
         paidUploadProvider: 'imgur'
       }
@@ -70,6 +70,37 @@ export default function App() {
   useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 1000)
     return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
+    const handleInteraction = () => {
+      if (!document.fullscreenElement && !window.skanigaExplicitExitFs) {
+        document.documentElement.requestFullscreen()
+          .then(() => {
+            window.skanigaWasFullscreen = true
+          })
+          .catch(() => {})
+      }
+    }
+
+    const handleFsChange = () => {
+      if (document.fullscreenElement) {
+        window.skanigaWasFullscreen = true
+        window.skanigaExplicitExitFs = false
+      } else {
+        if (window.skanigaWasFullscreen) {
+          window.skanigaExplicitExitFs = true
+        }
+      }
+    }
+
+    document.addEventListener('click', handleInteraction)
+    document.addEventListener('fullscreenchange', handleFsChange)
+
+    return () => {
+      document.removeEventListener('click', handleInteraction)
+      document.removeEventListener('fullscreenchange', handleFsChange)
+    }
   }, [])
 
   if (currentPath === '/settings') {

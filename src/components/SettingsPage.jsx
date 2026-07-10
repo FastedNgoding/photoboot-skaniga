@@ -9,10 +9,10 @@ export default function SettingsPage({ config, onSave }) {
   const [watermarkText, setWatermarkText] = useState(config.watermarkText || 'SKANIGA PORTRAIT')
 
   const [freeUploadProvider, setFreeUploadProvider] = useState(config.freeUploadProvider || 'imgbb')
-  const [imgbbApiKey, setImgbbApiKey] = useState(config.imgbbApiKey || 'ab03a93ae55127be2fc02960dfde7834')
+  const [imgbbApiKey, setImgbbApiKey] = useState(config.imgbbApiKey || 'a49272e5e22c14d2e44681221e169088')
   const [imgurClientId, setImgurClientId] = useState(config.imgurClientId || '')
-  const [cloudinaryCloudName, setCloudinaryCloudName] = useState(config.cloudinaryCloudName || 'dlb2wugmt')
-  const [cloudinaryUploadPreset, setCloudinaryUploadPreset] = useState(config.cloudinaryUploadPreset || 'photobooth_skaniga')
+  const [cloudinaryCloudName, setCloudinaryCloudName] = useState(config.cloudinaryCloudName || 'xoawhvbs')
+  const [cloudinaryUploadPreset, setCloudinaryUploadPreset] = useState(config.cloudinaryUploadPreset || 'photobooth_assets')
   const [theme, setTheme] = useState(config.theme || 'light')
   const [paidUploadProvider, setPaidUploadProvider] = useState(config.paidUploadProvider || 'imgur')
 

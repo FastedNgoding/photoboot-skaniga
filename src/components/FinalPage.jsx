@@ -900,7 +900,6 @@ export default function FinalPage({ photos, template, onRestart, config, isExpir
   };
 
   const handleRestart = () => {
-    exitFull();
     localStorage.removeItem('skaniga-imgur-hash')
     localStorage.removeItem('skaniga-imgur-url')
     onRestart();

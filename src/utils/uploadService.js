@@ -1,6 +1,6 @@
-const IMGBB_API_KEY = "ab03a93ae55127be2fc02960dfde7834"
-const CLOUDINARY_CLOUD = "dlb2wugmt"
-const CLOUDINARY_PRESET = "photobooth_skaniga"
+const IMGBB_API_KEY = "a49272e5e22c14d2e44681221e169088"
+const CLOUDINARY_CLOUD = "xoawhvbs"
+const CLOUDINARY_PRESET = "photobooth_assets"
 
 export async function upImgBB(b64, key) {
   try {

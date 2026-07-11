@@ -15,6 +15,8 @@ export default function SettingsPage({ config, onSave }) {
   const [cloudinaryUploadPreset, setCloudinaryUploadPreset] = useState(config.cloudinaryUploadPreset || 'photobooth_assets')
   const [theme, setTheme] = useState(config.theme || 'light')
   const [paidUploadProvider, setPaidUploadProvider] = useState(config.paidUploadProvider || 'imgur')
+  const [albumType, setAlbumType] = useState(config.albumType || 'bawaan')
+  const [customAlbumUrl, setCustomAlbumUrl] = useState(config.customAlbumUrl || '')
 
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [inputPin, setInputPin] = useState('')
@@ -46,7 +48,9 @@ export default function SettingsPage({ config, onSave }) {
       cloudinaryCloudName,
       cloudinaryUploadPreset,
       theme,
-      paidUploadProvider
+      paidUploadProvider,
+      albumType,
+      customAlbumUrl: customAlbumUrl.trim()
     })
   }
 
@@ -305,6 +309,50 @@ export default function SettingsPage({ config, onSave }) {
                   placeholder="contoh: photobooth_skaniga"
                 />
               </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-[#547A95] !mb-2">Halaman Album (Share)</label>
+              <div className="flex !gap-4">
+                <label className="flex-1 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="albumType"
+                    value="bawaan"
+                    checked={albumType === 'bawaan'}
+                    onChange={(e) => setAlbumType(e.target.value)}
+                    className="sr-only peer"
+                  />
+                  <div className="!p-3 text-center rounded-xl border-2 border-gray-200 peer-checked:border-[#C2A56D] peer-checked:bg-[#C2A56D]/10 peer-checked:text-[#C2A56D] font-bold transition-all text-sm">
+                    Bawaan (/share)
+                  </div>
+                </label>
+                <label className="flex-1 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="albumType"
+                    value="hosting"
+                    checked={albumType === 'hosting'}
+                    onChange={(e) => setAlbumType(e.target.value)}
+                    className="sr-only peer"
+                  />
+                  <div className="!p-3 text-center rounded-xl border-2 border-gray-200 peer-checked:border-[#C2A56D] peer-checked:bg-[#C2A56D]/10 peer-checked:text-[#C2A56D] font-bold transition-all text-sm">
+                    Hosting PHP 🌐
+                  </div>
+                </label>
+              </div>
+              {albumType === 'hosting' && (
+                <div className="mt-3">
+                  <input
+                    type="url"
+                    value={customAlbumUrl}
+                    onChange={(e) => setCustomAlbumUrl(e.target.value)}
+                    className="w-full !p-3 rounded-xl border-2 border-gray-200 focus:border-[#547A95] outline-none text-sm font-mono"
+                    placeholder="https://domain.com/album.php"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">URL file album.php yang sudah diupload ke hosting. Parameter <code>?images=url1,url2</code> akan ditambahkan otomatis.</p>
+                </div>
+              )}
             </div>
           </div>
 

@@ -791,7 +791,10 @@ export default function FinalPage({ photos, template, onRestart, config, isExpir
 
         const validUrls = urls.filter(u => u && u.startsWith("http"))
         if (validUrls.length > 0) {
-          const sharePageUrl = window.location.origin + "/share?images=" + encodeURIComponent(validUrls.join(","))
+          const baseAlbum = (config.albumType === 'hosting' && config.customAlbumUrl)
+            ? config.customAlbumUrl
+            : window.location.origin + "/share"
+          const sharePageUrl = baseAlbum + "?images=" + encodeURIComponent(validUrls.join(","))
           setShareUrl(sharePageUrl)
           setStatus("generating-qr")
           const q = await QRCode.toDataURL(sharePageUrl, {

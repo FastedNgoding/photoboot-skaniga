@@ -39,7 +39,9 @@ export default function App() {
         cloudinaryCloudName: parsed.cloudinaryCloudName || 'xoawhvbs',
         cloudinaryUploadPreset: parsed.cloudinaryUploadPreset || 'photobooth_assets',
         theme: parsed.theme || 'light',
-        paidUploadProvider: parsed.paidUploadProvider || 'imgur'
+        paidUploadProvider: parsed.paidUploadProvider || 'imgur',
+        albumType: parsed.albumType || 'bawaan',
+        customAlbumUrl: parsed.customAlbumUrl || ''
       }
     } catch {
       return {
@@ -55,7 +57,9 @@ export default function App() {
         cloudinaryCloudName: 'xoawhvbs',
         cloudinaryUploadPreset: 'photobooth_assets',
         theme: 'light',
-        paidUploadProvider: 'imgur'
+        paidUploadProvider: 'imgur',
+        albumType: 'bawaan',
+        customAlbumUrl: ''
       }
     }
   })

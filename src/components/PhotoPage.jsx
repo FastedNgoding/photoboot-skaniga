@@ -46,7 +46,16 @@ export default function PhotoPage({ onComplete, onBack, config }) {
       if (streamRef.current) stopCamera();
       setCamError(null);
       try {
-        const videoConstraints = { width: { ideal: 1280 }, height: { ideal: 720 } };
+        let idealWidth = 1280;
+        let idealHeight = 720;
+        if (config?.cameraResolution === 'hd') {
+          idealWidth = 1920;
+          idealHeight = 1080;
+        } else if (config?.cameraResolution === 'ultra') {
+          idealWidth = 3840;
+          idealHeight = 2160;
+        }
+        const videoConstraints = { width: { ideal: idealWidth }, height: { ideal: idealHeight } };
         if (deviceId) videoConstraints.deviceId = { exact: deviceId };
         else videoConstraints.facingMode = "user";
 
@@ -98,8 +107,17 @@ export default function PhotoPage({ onComplete, onBack, config }) {
     if (!videoRef.current || !canvasRef.current) return null;
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    canvas.width = video.videoWidth || 1280;
-    canvas.height = video.videoHeight || 720;
+    let targetWidth = 1280;
+    let targetHeight = 720;
+    if (config?.cameraResolution === 'hd') {
+      targetWidth = 1920;
+      targetHeight = 1080;
+    } else if (config?.cameraResolution === 'ultra') {
+      targetWidth = 3840;
+      targetHeight = 2160;
+    }
+    canvas.width = video.videoWidth || targetWidth;
+    canvas.height = video.videoHeight || targetHeight;
     const ctx = canvas.getContext("2d");
     ctx.translate(canvas.width, 0);
     ctx.scale(-1, 1);

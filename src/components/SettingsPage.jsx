@@ -7,6 +7,7 @@ export default function SettingsPage({ config, onSave }) {
   const [controlButtonMode, setControlButtonMode] = useState(config.controlButtonMode || 'music')
   const [countdownDuration, setCountdownDuration] = useState(config.countdownDuration || 3)
   const [watermarkText, setWatermarkText] = useState(config.watermarkText || 'SKANIGA PORTRAIT')
+  const [cameraResolution, setCameraResolution] = useState(config.cameraResolution || 'biasa')
 
   const [freeUploadProvider, setFreeUploadProvider] = useState(config.freeUploadProvider || 'imgbb')
   const [imgbbApiKey, setImgbbApiKey] = useState(config.imgbbApiKey || 'a49272e5e22c14d2e44681221e169088')
@@ -42,6 +43,7 @@ export default function SettingsPage({ config, onSave }) {
       controlButtonMode,
       countdownDuration: Number(countdownDuration),
       watermarkText: watermarkText.trim() || 'SKANIGA PORTRAIT',
+      cameraResolution,
       freeUploadProvider,
       imgbbApiKey,
       imgurClientId,
@@ -207,6 +209,51 @@ export default function SettingsPage({ config, onSave }) {
                       </div>
                     </label>
                   ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-[#547A95] !mb-2">Resolusi Kamera</label>
+                <div className="flex !gap-3">
+                  <label className="flex-1 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="cameraResolution"
+                      value="biasa"
+                      checked={cameraResolution === 'biasa'}
+                      onChange={(e) => setCameraResolution(e.target.value)}
+                      className="sr-only peer"
+                    />
+                    <div className="!p-2.5 text-center rounded-xl border-2 border-gray-200 peer-checked:border-[#C2A56D] peer-checked:bg-[#C2A56D]/10 peer-checked:text-[#C2A56D] font-bold transition-all text-sm">
+                      Biasa
+                    </div>
+                  </label>
+                  <label className="flex-1 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="cameraResolution"
+                      value="hd"
+                      checked={cameraResolution === 'hd'}
+                      onChange={(e) => setCameraResolution(e.target.value)}
+                      className="sr-only peer"
+                    />
+                    <div className="!p-2.5 text-center rounded-xl border-2 border-gray-200 peer-checked:border-[#C2A56D] peer-checked:bg-[#C2A56D]/10 peer-checked:text-[#C2A56D] font-bold transition-all text-sm">
+                      HD
+                    </div>
+                  </label>
+                  <label className="flex-1 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="cameraResolution"
+                      value="ultra"
+                      checked={cameraResolution === 'ultra'}
+                      onChange={(e) => setCameraResolution(e.target.value)}
+                      className="sr-only peer"
+                    />
+                    <div className="!p-2.5 text-center rounded-xl border-2 border-gray-200 peer-checked:border-[#C2A56D] peer-checked:bg-[#C2A56D]/10 peer-checked:text-[#C2A56D] font-bold transition-all text-sm">
+                      Ultra
+                    </div>
+                  </label>
                 </div>
               </div>
 

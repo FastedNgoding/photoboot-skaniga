@@ -16,7 +16,9 @@ export default function AlbumPage({ imageUrls }) {
           SKANIGA PORTRAIT
         </h1>
         <p className="text-sm text-gray-400 max-w-sm mx-auto leading-relaxed">
-          Terima kasih telah menggunakan photobooth kami. Berikut adalah
+          Terima kasih telah mengguna
+          
+          kan photobooth kami. Berikut adalah
           foto-foto hasil sesi Anda:
         </p>
 

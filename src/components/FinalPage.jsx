@@ -528,6 +528,195 @@ function drawDeco(c, t, W, H) {
     }
     c.globalAlpha = 1;
   }
+  // New template decorations
+  if (id === "lovepink") {
+    c.globalAlpha = 0.25;
+    drawHeart(c, 65, 55, 20, "#ff4d6d");
+    drawHeart(c, W - 65, 60, 17, "#ff85a1");
+    drawHeart(c, 60, H - 65, 18, "#ff4d6d");
+    drawHeart(c, W - 60, H - 60, 15, "#ff85a1");
+    drawHeart(c, W / 2, 35, 12, "#ffc2d1");
+    drawHeart(c, 100, 40, 10, "#ff4d6d");
+    drawHeart(c, W - 100, H - 45, 11, "#ff85a1");
+    c.globalAlpha = 0.07;
+    c.fillStyle = "#ff4d6d";
+    for (let i = 0; i < 12; i++) {
+      c.beginPath();
+      c.arc(50 + (i % 4) * (W / 4), 40 + Math.floor(i / 4) * (H / 4), 22, 0, Math.PI * 2);
+      c.fill();
+    }
+    c.globalAlpha = 1;
+  }
+  if (id === "bubblegum") {
+    c.globalAlpha = 0.2;
+    for (let i = 0; i < 12; i++) {
+      const bx = 40 + (i % 4) * (W / 4);
+      const by = 40 + Math.floor(i / 4) * (H / 4);
+      const br = 12 + (i % 3) * 5;
+      c.beginPath();
+      c.arc(bx, by, br, 0, Math.PI * 2);
+      c.strokeStyle = "#b24aec";
+      c.lineWidth = 2;
+      c.stroke();
+    }
+    drawHeart(c, 70, 60, 16, "#f472b6");
+    drawHeart(c, W - 70, H - 60, 14, "#b24aec");
+    c.globalAlpha = 0.06;
+    c.fillStyle = "#b24aec";
+    for (let i = 0; i < 15; i++) {
+      c.beginPath();
+      c.arc(30 + (i % 5) * (W / 5), 30 + Math.floor(i / 5) * (H / 4), 18, 0, Math.PI * 2);
+      c.fill();
+    }
+    c.globalAlpha = 1;
+  }
+  if (id === "vintagefilm") {
+    c.globalAlpha = 0.15;
+    c.fillStyle = "#c49a6c";
+    // Film sprocket holes left side
+    for (let i = 0; i < 10; i++) {
+      c.fillRect(5, 30 + i * 110, 18, 28);
+      c.fillRect(W - 23, 30 + i * 110, 18, 28);
+    }
+    c.globalAlpha = 0.12;
+    c.strokeStyle = "#e8c99a";
+    c.lineWidth = 1;
+    c.strokeRect(28, 10, W - 56, H - 20);
+    c.globalAlpha = 1;
+  }
+  if (id === "neonnight") {
+    c.globalAlpha = 0.15;
+    c.strokeStyle = "#00d4ff";
+    c.lineWidth = 0.8;
+    for (let gx = 0; gx < W; gx += 30) {
+      c.beginPath(); c.moveTo(gx, 0); c.lineTo(gx, H); c.stroke();
+    }
+    for (let gy = 0; gy < H; gy += 30) {
+      c.beginPath(); c.moveTo(0, gy); c.lineTo(W, gy); c.stroke();
+    }
+    c.globalAlpha = 0.3;
+    drawStar(c, 70, 55, 5, 14, 7, "#00d4ff");
+    drawStar(c, W - 70, 60, 4, 10, 5, "#ff00ff");
+    drawStar(c, 75, H - 65, 5, 12, 6, "#ff00ff");
+    drawStar(c, W - 75, H - 60, 4, 11, 5.5, "#00d4ff");
+    c.globalAlpha = 1;
+  }
+  if (id === "y2k") {
+    c.globalAlpha = 0.18;
+    for (let i = 0; i < 20; i++) {
+      const rx = Math.floor(i % 5) * (W / 5) + 30;
+      const ry = Math.floor(i / 5) * (H / 5) + 30;
+      c.fillStyle = i % 2 === 0 ? "#7ab8f5" : "#f5a0c8";
+      c.beginPath();
+      c.arc(rx, ry, 8, 0, Math.PI * 2);
+      c.fill();
+    }
+    c.globalAlpha = 0.12;
+    c.strokeStyle = "#7ab8f5";
+    c.lineWidth = 1.5;
+    c.beginPath();
+    c.arc(W / 2, H / 2, 160, 0, Math.PI * 2);
+    c.stroke();
+    c.globalAlpha = 1;
+  }
+  if (id === "cottagecore") {
+    c.globalAlpha = 0.2;
+    drawCherryBlossom(c, 65, 55, 14, "#a07850");
+    drawCherryBlossom(c, W - 60, 60, 12, "#8cb87a");
+    drawCherryBlossom(c, 70, H - 60, 13, "#a07850");
+    drawCherryBlossom(c, W - 65, H - 55, 11, "#8cb87a");
+    c.globalAlpha = 0.08;
+    c.fillStyle = "#a07850";
+    for (let i = 0; i < 12; i++) {
+      c.beginPath();
+      c.ellipse(50 + (i % 4) * (W / 4), 40 + Math.floor(i / 4) * (H / 4), 10, 18, 0.5, 0, Math.PI * 2);
+      c.fill();
+    }
+    c.globalAlpha = 1;
+  }
+  if (id === "kiddie") {
+    c.globalAlpha = 0.25;
+    for (let i = 0; i < 8; i++) {
+      const kx = 50 + (i % 4) * (W / 4);
+      const ky = 60 + Math.floor(i / 4) * (H / 2 - 80);
+      const cols = ["#ff5722", "#4caf50", "#2196f3", "#e91e63"];
+      c.fillStyle = cols[i % 4];
+      c.beginPath();
+      c.arc(kx, ky, 15, 0, Math.PI * 2);
+      c.fill();
+    }
+    c.globalAlpha = 0.3;
+    drawStar(c, 80, 60, 5, 12, 6, "#ff5722");
+    drawStar(c, W - 80, H - 60, 5, 10, 5, "#4caf50");
+    c.globalAlpha = 1;
+  }
+  if (id === "galaxygirl") {
+    c.globalAlpha = 0.25;
+    drawStar(c, 70, 55, 5, 12, 6, "#a855f7");
+    drawStar(c, W - 70, 60, 4, 10, 5, "#ec4899");
+    drawStar(c, 75, H - 65, 5, 11, 5.5, "#a855f7");
+    drawStar(c, W - 75, H - 60, 4, 9, 4.5, "#ec4899");
+    c.globalAlpha = 0.08;
+    c.strokeStyle = "#a855f7";
+    c.lineWidth = 1;
+    for (let i = 0; i < 3; i++) {
+      c.beginPath();
+      c.arc(W / 2, H / 2, 100 + i * 60, 0, Math.PI * 2);
+      c.stroke();
+    }
+    c.globalAlpha = 1;
+  }
+  if (id === "summer") {
+    c.globalAlpha = 0.15;
+    c.strokeStyle = "#00bcd4";
+    c.lineWidth = 2;
+    for (let i = 0; i < 5; i++) {
+      c.beginPath();
+      for (let wx = 0; wx < W; wx += 4) {
+        const wy = H - 100 + i * 30 + Math.sin(wx * 0.04 + i) * 12;
+        wx === 0 ? c.moveTo(wx, wy) : c.lineTo(wx, wy);
+      }
+      c.stroke();
+    }
+    drawStar(c, 80, 60, 8, 14, 7, "#ff6b35");
+    drawStar(c, W - 80, H - 60, 8, 12, 6, "#ff6b35");
+    c.globalAlpha = 1;
+  }
+  if (id === "aesthetic") {
+    c.globalAlpha = 0.08;
+    c.strokeStyle = "#6c757d";
+    c.lineWidth = 1;
+    for (let i = 0; i < 5; i++) {
+      c.beginPath();
+      c.arc(W / 2, H / 2, 80 + i * 50, 0, Math.PI * 2);
+      c.stroke();
+    }
+    c.globalAlpha = 0.12;
+    drawCherryBlossom(c, 70, 55, 12, "#adb5bd");
+    drawCherryBlossom(c, W - 70, H - 55, 11, "#6c757d");
+    c.globalAlpha = 1;
+  }
+  if (id === "matcha") {
+    c.globalAlpha = 0.18;
+    c.fillStyle = "#4caf7e";
+    for (let i = 0; i < 8; i++) {
+      const mx = 30 + (i % 4) * (W / 4);
+      const my = 40 + Math.floor(i / 4) * (H / 2 - 60);
+      c.beginPath();
+      c.ellipse(mx, my, 6, 18, 0.5, 0, Math.PI * 2);
+      c.fill();
+    }
+    c.globalAlpha = 0.1;
+    c.strokeStyle = "#a5d6a7";
+    c.lineWidth = 1.5;
+    for (let i = 0; i < 6; i++) {
+      c.beginPath();
+      c.moveTo(i * (W / 6), 0);
+      c.lineTo(i * (W / 6), H);
+      c.stroke();
+    }
+    c.globalAlpha = 1;
+  }
 }
 
 export function buildStrip(photos, template, config) {
@@ -560,22 +749,103 @@ export function buildStrip(photos, template, config) {
       });
     Promise.all(photos.map((p) => loadImg(p)))
       .then(async (imgs) => {
+        const shape = template.frameShape || 'rect';
         imgs.forEach((img, i) => {
           const y = PAD + i * (PH + GAP);
           const x = PAD;
           const pw = W - PAD * 2;
 
-          c.fillStyle = template.border + "11";
-          c.fillRect(x, y, pw, PH);
-
+          // Build clip path depending on shape
           c.save();
           c.beginPath();
-          c.rect(x, y, pw, PH);
+
+          if (shape === 'heart') {
+            // Heart clip path
+            const cx = x + pw / 2, cy = y + PH / 2;
+            const hw = pw / 2, hh = PH / 2;
+            c.moveTo(cx, cy + hh * 0.75);
+            c.bezierCurveTo(cx - hw * 0.05, cy + hh * 0.5, cx - hw, cy, cx - hw, cy - hh * 0.3);
+            c.bezierCurveTo(cx - hw, cy - hh * 0.85, cx, cy - hh * 0.85, cx, cy - hh * 0.5);
+            c.bezierCurveTo(cx, cy - hh * 0.85, cx + hw, cy - hh * 0.85, cx + hw, cy - hh * 0.3);
+            c.bezierCurveTo(cx + hw, cy, cx + hw * 0.05, cy + hh * 0.5, cx, cy + hh * 0.75);
+          } else if (shape === 'circle') {
+            const r = Math.min(pw, PH) / 2;
+            c.arc(x + pw / 2, y + PH / 2, r, 0, Math.PI * 2);
+          } else if (shape === 'oval') {
+            c.ellipse(x + pw / 2, y + PH / 2, pw / 2, PH / 2, 0, 0, Math.PI * 2);
+          } else if (shape === 'diamond') {
+            c.moveTo(x + pw / 2, y);
+            c.lineTo(x + pw, y + PH / 2);
+            c.lineTo(x + pw / 2, y + PH);
+            c.lineTo(x, y + PH / 2);
+            c.closePath();
+          } else if (shape === 'hexagon') {
+            const hx = x + pw / 2, hy = y + PH / 2;
+            const hrx = pw / 2, hry = PH / 2;
+            const angles = [210, 270, 330, 30, 90, 150];
+            angles.forEach((a, ai) => {
+              const rad = (a * Math.PI) / 180;
+              const px = hx + hrx * Math.cos(rad);
+              const py = hy + hry * Math.sin(rad);
+              ai === 0 ? c.moveTo(px, py) : c.lineTo(px, py);
+            });
+            c.closePath();
+          } else if (shape === 'star') {
+            const sx = x + pw / 2, sy = y + PH / 2;
+            const or = Math.min(pw, PH) / 2, ir = or * 0.4;
+            const sp = 5;
+            let ra = (-Math.PI / 2);
+            const st = Math.PI / sp;
+            c.moveTo(sx + Math.cos(ra) * or, sy + Math.sin(ra) * or);
+            for (let si = 0; si < sp; si++) {
+              ra += st;
+              c.lineTo(sx + Math.cos(ra) * ir, sy + Math.sin(ra) * ir);
+              ra += st;
+              c.lineTo(sx + Math.cos(ra) * or, sy + Math.sin(ra) * or);
+            }
+            c.closePath();
+          } else if (shape === 'cloud') {
+            // Rounded rectangle with extra bumps on top
+            const r2 = PH * 0.25;
+            c.arc(x + pw * 0.25, y + PH * 0.35, r2, Math.PI, Math.PI * 1.5);
+            c.arc(x + pw * 0.6, y + PH * 0.25, r2 * 1.2, Math.PI * 1.4, Math.PI * 2);
+            c.arc(x + pw * 0.85, y + PH * 0.5, r2 * 0.9, Math.PI * 1.8, Math.PI * 0.3);
+            c.arc(x + pw * 0.7, y + PH * 0.85, r2 * 0.8, 0, Math.PI * 0.8);
+            c.arc(x + pw * 0.3, y + PH * 0.85, r2 * 0.8, Math.PI * 0.2, Math.PI);
+            c.arc(x + pw * 0.1, y + PH * 0.5, r2 * 0.9, Math.PI * 0.7, Math.PI * 1.2);
+            c.closePath();
+          } else if (shape === 'arch') {
+            // Arch: semicircle top + rect bottom
+            c.arc(x + pw / 2, y + PH / 2, pw / 2, Math.PI, 0);
+            c.lineTo(x + pw, y + PH);
+            c.lineTo(x, y + PH);
+            c.closePath();
+          } else if (shape === 'wave') {
+            c.moveTo(x, y + PH * 0.2);
+            c.quadraticCurveTo(x + pw * 0.25, y, x + pw * 0.5, y + PH * 0.15);
+            c.quadraticCurveTo(x + pw * 0.75, y + PH * 0.3, x + pw, y + PH * 0.1);
+            c.lineTo(x + pw, y + PH);
+            c.lineTo(x, y + PH);
+            c.closePath();
+          } else if (shape === 'polaroid') {
+            c.rect(x, y, pw, PH);
+          } else {
+            c.rect(x, y, pw, PH);
+          }
+
           c.clip();
 
+          // Fill background for shape
+          c.fillStyle = template.border + "11";
+          if (shape === 'circle') {
+            const r = Math.min(pw, PH) / 2;
+            c.arc(x + pw / 2, y + PH / 2, r, 0, Math.PI * 2);
+          }
+          c.fillRect(x, y, pw, PH);
+
           const sx = pw / img.width;
-          const sy = PH / img.height;
-          const s = Math.max(sx, sy);
+          const sy2 = PH / img.height;
+          const s = Math.max(sx, sy2);
 
           const dw = img.width * s;
           const dh = img.height * s;
@@ -586,17 +856,82 @@ export function buildStrip(photos, template, config) {
 
           c.restore();
 
-          c.strokeStyle = template.border + "77";
-          c.lineWidth = 4;
-          c.strokeRect(x, y, pw, PH);
+          // Draw shape outline
+          c.save();
+          c.beginPath();
+          if (shape === 'heart') {
+            const cx = x + pw / 2, cy = y + PH / 2;
+            const hw = pw / 2, hh = PH / 2;
+            c.moveTo(cx, cy + hh * 0.75);
+            c.bezierCurveTo(cx - hw * 0.05, cy + hh * 0.5, cx - hw, cy, cx - hw, cy - hh * 0.3);
+            c.bezierCurveTo(cx - hw, cy - hh * 0.85, cx, cy - hh * 0.85, cx, cy - hh * 0.5);
+            c.bezierCurveTo(cx, cy - hh * 0.85, cx + hw, cy - hh * 0.85, cx + hw, cy - hh * 0.3);
+            c.bezierCurveTo(cx + hw, cy, cx + hw * 0.05, cy + hh * 0.5, cx, cy + hh * 0.75);
+            c.closePath();
+          } else if (shape === 'circle') {
+            const r = Math.min(pw, PH) / 2;
+            c.arc(x + pw / 2, y + PH / 2, r, 0, Math.PI * 2);
+          } else if (shape === 'oval') {
+            c.ellipse(x + pw / 2, y + PH / 2, pw / 2, PH / 2, 0, 0, Math.PI * 2);
+          } else if (shape === 'diamond') {
+            c.moveTo(x + pw / 2, y);
+            c.lineTo(x + pw, y + PH / 2);
+            c.lineTo(x + pw / 2, y + PH);
+            c.lineTo(x, y + PH / 2);
+            c.closePath();
+          } else if (shape === 'hexagon') {
+            const hx = x + pw / 2, hy = y + PH / 2;
+            const hrx = pw / 2, hry = PH / 2;
+            const angles = [210, 270, 330, 30, 90, 150];
+            angles.forEach((a, ai) => {
+              const rad = (a * Math.PI) / 180;
+              const px2 = hx + hrx * Math.cos(rad);
+              const py2 = hy + hry * Math.sin(rad);
+              ai === 0 ? c.moveTo(px2, py2) : c.lineTo(px2, py2);
+            });
+            c.closePath();
+          } else if (shape === 'star') {
+            const sx2 = x + pw / 2, sy3 = y + PH / 2;
+            const or = Math.min(pw, PH) / 2, ir = or * 0.4;
+            const sp = 5;
+            let ra = (-Math.PI / 2);
+            const st = Math.PI / sp;
+            c.moveTo(sx2 + Math.cos(ra) * or, sy3 + Math.sin(ra) * or);
+            for (let si = 0; si < sp; si++) {
+              ra += st;
+              c.lineTo(sx2 + Math.cos(ra) * ir, sy3 + Math.sin(ra) * ir);
+              ra += st;
+              c.lineTo(sx2 + Math.cos(ra) * or, sy3 + Math.sin(ra) * or);
+            }
+            c.closePath();
+          } else if (shape === 'arch') {
+            c.arc(x + pw / 2, y + PH / 2, pw / 2, Math.PI, 0);
+            c.lineTo(x + pw, y + PH);
+            c.lineTo(x, y + PH);
+            c.closePath();
+          } else if (shape === 'wave') {
+            c.moveTo(x, y + PH * 0.2);
+            c.quadraticCurveTo(x + pw * 0.25, y, x + pw * 0.5, y + PH * 0.15);
+            c.quadraticCurveTo(x + pw * 0.75, y + PH * 0.3, x + pw, y + PH * 0.1);
+            c.lineTo(x + pw, y + PH);
+            c.lineTo(x, y + PH);
+            c.closePath();
+          } else {
+            c.rect(x, y, pw, PH);
+          }
+          c.strokeStyle = template.border + "99";
+          c.lineWidth = 5;
+          c.stroke();
+          c.restore();
 
-          c.fillStyle = "rgba(0,0,0,0.5)";
-          c.fillRect(x + pw - 42, y + PH - 24, 42, 24);
-          c.font = 'bold 12px "Urbanist", sans-serif';
-          c.fillStyle = "#ffffff";
-          c.textAlign = "right";
-          c.fillText(`${i + 1}/${imgs.length}`, x + pw - 8, y + PH - 8);
-          c.textAlign = "left";
+          // Photo number label
+          // c.fillStyle = "rgba(0,0,0,0.5)";
+          // c.fillRect(x + pw - 42, y + PH - 24, 42, 24);
+          // c.font = 'bold 12px "Urbanist", sans-serif';
+          // c.fillStyle = "#ffffff";
+          // c.textAlign = "right";
+          // c.fillText(`${i + 1}/${imgs.length}`, x + pw - 8, y + PH - 8);
+          // c.textAlign = "left";
         });
         if (template.id === "astronaut") {
           const imageAstrounot1 = await loadStaticImage(astronotImg1);
